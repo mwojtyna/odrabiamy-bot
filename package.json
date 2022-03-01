@@ -1,0 +1,25 @@
+{
+	"name": "odrabiamy-bot",
+	"version": "0.1.0",
+	"description": "Discord bot for retreiving data from https://odrabiamy.pl/",
+	"main": "index.js",
+	"scripts": {
+		"start": "ts-node src/main.ts",
+		"serve": "ts-node-dev --respawn src/main.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/matijas-05/odrabiamy-bot.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/matijas-05/odrabiamy-bot/issues"
+	},
+	"homepage": "https://github.com/matijas-05/odrabiamy-bot#readme",
+	"devDependencies": {
+		"ts-node": "^10.6.0",
+		"ts-node-dev": "^1.1.8"
+	}
+}
