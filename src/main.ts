@@ -13,10 +13,10 @@ type Command = {
 	exercise: string
 }
 const cmd: Command = {
-	channelName: "Geografia",
+	channelName: "Matematyka",
 	type: "pdr",
-	page: 87,
-	exercise: "3"
+	page: 75,
+	exercise: "5"
 };
 
 // Main function
@@ -37,8 +37,12 @@ const cmd: Command = {
 	// Go to correct webpage
 	await webPage.goto(webPage.url() + config.bookIDs[cmd.channelName][cmd.type] + `strona-${cmd.page}`);
 
-	// await page.evaluate((config, cmd) => console.log(config.bookIDs[cmd.channelName][cmd.args]), config, cmd);
-	// await page.screenshot({ path: "page.png", fullPage: true });
+	// Choose exercise
+	const exerciseBtn = await webPage.$(`#qa-exercise-no-${cmd.exercise}`);
+	exerciseBtn?.click();
+
+	// await webPage.evaluate((config, cmd) => console.log(config.bookIDs[cmd.channelName][cmd.args]), config, cmd);
+	// await webPage.screenshot({ path: "page.png", fullPage: true });
 })();
 
 async function print(object: any, page: pup.Page) {
