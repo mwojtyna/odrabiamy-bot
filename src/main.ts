@@ -1,15 +1,25 @@
-import pup from "puppeteer"
+import pup from "puppeteer";
+import config from "./config.json";
 
+const width = 1800;
+const height = 1300;
+const website = "https://odrabiamy.pl/";
+
+// Main function
 (async () => {
-	const width = 1700
-	const height = 1200
 
+	// Setup browser
 	const browser = await pup.launch({
-		headless: false,
-		args: [`--window-size=${width},${height}`],
+		devtools: true,
+		args: [`--window-size=${width},${height}`,],
 		defaultViewport: { width: width, height: height }
 	});
-
 	const [page] = await browser.pages();
-	await page.goto("https://odrabiamy.pl/");
+	await page.goto(website);
+
+	// Allow cookies
+	await page.click("#qa-rodo-accept");
+
+	// await page.evaluate((config) => console.log(config.bookIDs), config);
+	// await page.screenshot({ path: "page.png", fullPage: true });
 })();
