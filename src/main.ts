@@ -10,6 +10,6 @@ import pup from "puppeteer"
 		defaultViewport: { width: width, height: height }
 	});
 
-	const page = await browser.newPage();
+	const [page] = await browser.pages();
 	await page.goto("https://odrabiamy.pl/");
 })();
