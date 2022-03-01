@@ -13,10 +13,10 @@ type Command = {
 	exercise: string
 }
 const cmd: Command = {
-	channelName: "Matematyka",
+	channelName: "Polski",
 	type: "pdr",
-	page: 75,
-	exercise: "5"
+	page: 222,
+	exercise: "4"
 };
 
 // Main function
@@ -24,7 +24,7 @@ const cmd: Command = {
 
 	// Setup browser
 	const browser = await pup.launch({
-		devtools: true,
+		// devtools: true,
 		args: [`--window-size=${width},${height}`,],
 		defaultViewport: { width: width, height: height }
 	});
@@ -37,14 +37,23 @@ const cmd: Command = {
 	// Go to correct webpage
 	await webPage.goto(webPage.url() + config.bookIDs[cmd.channelName][cmd.type] + `strona-${cmd.page}`);
 
-	// Choose exercise
-	const exerciseBtn = await webPage.$(`#qa-exercise-no-${cmd.exercise}`);
-	exerciseBtn?.click();
+	// Choose exercise and take screenshot
+	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${cmd.exercise}`);
 
-	// await webPage.evaluate((config, cmd) => console.log(config.bookIDs[cmd.channelName][cmd.args]), config, cmd);
-	// await webPage.screenshot({ path: "page.png", fullPage: true });
+	if(exerciseBtns.length === 0)
+		throw new Error("Nie znaleziono takiego zadania!");
+
+	await webPage.waitForTimeout(100);
+	for (let i = 0; i < exerciseBtns.length; i++) {
+		exerciseBtns[i].click();
+		await webPage.waitForTimeout(500);
+		await takeScreenshot(`screenshots/${cmd.channelName}-${cmd.type} zad.${cmd.exercise}${exerciseBtns.length > 1 ? `-${i + 1}` : ""} str.${cmd.page}.png`, webPage);
+	}
 })();
 
-async function print(object: any, page: pup.Page) {
-	page.evaluate(object => console.log(object), object);
+async function takeScreenshot(path: string, webPage: pup.Page) {
+	await webPage.screenshot({ path: path, fullPage: true });
+}
+async function print(object: any, webPage: pup.Page) {
+	webPage.evaluate(object => console.log(object), object);
 }
