@@ -13,10 +13,10 @@ type Command = {
 	exercise: string
 }
 const cmd: Command = {
-	channelName: "Biologia",
+	channelName: "Geografia",
 	type: "pdr",
 	page: 87,
-	exercise: ""
+	exercise: "3"
 };
 
 // Main function
@@ -34,48 +34,13 @@ const cmd: Command = {
 	// Allow cookies
 	await webPage.click("#qa-rodo-accept");
 
-	// ---------- FINDING PAGE ----------
-	// Go to book's page
-	await webPage.goto(website + config.bookIDs[cmd.channelName][cmd.type]);
-
-	// Press page dropdown arrow
-	const arrow = await webPage.$(".css-55y1ai-indicatorContainer");
-	await arrow?.click();
-	
-	// Get page btn index
-	const firstPageNum = await webPage.$eval("#react-select-5-option-0", e => parseInt(e.textContent!.split(" ")[1]))
-	const pages: number[] = await webPage.$$eval('div[id^=react-select-5-option-]', divs => divs.map(div => parseInt(div.textContent!.split(" ")[1])));
-	const pageIndex = await getCorrectPage(webPage, pages, firstPageNum, cmd.page);
-	print(`pageIndex: ${pageIndex}, page: ${pages[pageIndex]}`, webPage);
-
-	// Click page btn
-	const pageBtn = await webPage.$(`#react-select-5-option-${pageIndex}`);
-	pageBtn?.click();
+	// Go to correct webpage
+	await webPage.goto(webPage.url() + config.bookIDs[cmd.channelName][cmd.type] + `strona-${cmd.page}`);
 
 	// await page.evaluate((config, cmd) => console.log(config.bookIDs[cmd.channelName][cmd.args]), config, cmd);
 	// await page.screenshot({ path: "page.png", fullPage: true });
 })();
 
-async function getCorrectPage(webPage: pup.Page, pages: number[], firstPageNum: number, bookPage: number): Promise<number> {
-	const diffs: number[] = [];
-	for (let i = 1; i < pages.length; i++) {
-		diffs.push(pages[i] - pages[i - 1])
-	}
-
-	print(pages, webPage);
-	print(diffs, webPage);
-
-	let result = firstPageNum;
-	for (let i = 0; i < pages.length; i++) {
-		if(result === bookPage)
-			return i;
-
-		result += diffs[i];
-	}
-
-	throw new Error("Nie znaleziono podanej strony!");
-	// return -1;
-}
 async function print(object: any, page: pup.Page) {
 	page.evaluate(object => console.log(object), object);
 }
