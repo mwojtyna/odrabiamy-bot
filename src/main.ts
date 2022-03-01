@@ -13,9 +13,9 @@ type Command = {
 	exercise: string
 }
 const cmd: Command = {
-	channelName: "Angielski gr.1",
-	type: "cw",
-	page: 67,
+	channelName: "Matematyka",
+	type: "pdr",
+	page: 53,
 	exercise: "2"
 };
 
@@ -24,7 +24,7 @@ const cmd: Command = {
 
 	// Setup browser
 	const browser = await pup.launch({
-		// devtools: true,
+		devtools: true,
 		args: [`--window-size=${width},${height}`,],
 		defaultViewport: { width: width, height: height }
 	});
@@ -38,7 +38,8 @@ const cmd: Command = {
 	await webPage.goto(webPage.url() + config.bookIDs[cmd.channelName][cmd.type] + `strona-${cmd.page}`);
 
 	// Choose exercise and take screenshot
-	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${cmd.exercise}`);
+	const exerciseCleaned = cmd.exercise.replace(".", "\\.");
+	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 	if(exerciseBtns.length === 0)
 		throw new Error("Nie znaleziono takiego zadania!");
