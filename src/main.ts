@@ -8,15 +8,15 @@ const website = "https://odrabiamy.pl/";
 // TODO: Get from discord
 type Command = {
 	channelName: keyof typeof config.bookIDs;
-	type: keyof typeof config.bookIDs.Biologia;
+	type: keyof typeof config.bookIDs.Matematyka.pdr | typeof config.bookIDs.Matematyka.cw;
 	page: number,
 	exercise: string
 }
 const cmd: Command = {
-	channelName: "Polski",
-	type: "pdr",
-	page: 222,
-	exercise: "4"
+	channelName: "Angielski gr.1",
+	type: "cw",
+	page: 67,
+	exercise: "2"
 };
 
 // Main function
@@ -47,7 +47,7 @@ const cmd: Command = {
 	for (let i = 0; i < exerciseBtns.length; i++) {
 		exerciseBtns[i].click();
 		await webPage.waitForTimeout(500);
-		await takeScreenshot(`screenshots/${cmd.channelName}-${cmd.type} zad.${cmd.exercise}${exerciseBtns.length > 1 ? `-${i + 1}` : ""} str.${cmd.page}.png`, webPage);
+		await takeScreenshot(`screenshots/${cmd.channelName}-${cmd.type.toString()} zad.${cmd.exercise}${exerciseBtns.length > 1 ? `-${i + 1}` : ""} str.${cmd.page}.png`, webPage);
 	}
 })();
 
