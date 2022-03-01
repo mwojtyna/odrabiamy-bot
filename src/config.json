@@ -1,6 +1,8 @@
 {
 	"bookIDs": {
-		"Polski": "jezyk-polski/ksiazka-12533",
+		"Polski": {
+			"pdr": "jezyk-polski/ksiazka-12533"
+		},
 		"Matematyka": {
 			"pdr": "matematyka/ksiazka-13007",
 			"cw": "matematyka/ksiazka-13128"
@@ -21,8 +23,12 @@
 			"pdr": "jezyk-angielski/ksiazka-12035",
 			"cw": "jezyk-angielski/ksiazka-11931"
 		},
-		"Biologia": "biologia/ksiazka-12570",
-		"Chemia": "chemia/ksiazka-12806",
+		"Biologia": {
+			"pdr": "biologia/ksiazka-12570"
+		},
+		"Chemia": {
+			"pdr": "chemia/ksiazka-12806"
+		},
 		"Geografia": {
 			"pdr": "geografia/ksiazka-12427",
 			"cw": "geografia/ksiazka-12427"
@@ -31,6 +37,9 @@
 			"pdr": "pp/ksiazka-12440",
 			"cw": "pp/ksiazka-12567"
 		},
-		"Fizyka": ""
+		"Fizyka": {
+			"pdr": "",
+			"cw": ""
+		}
 	}
 }

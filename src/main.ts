@@ -5,6 +5,16 @@ const width = 1800;
 const height = 1300;
 const website = "https://odrabiamy.pl/";
 
+// TODO: Get from discord
+type Command = {
+	channelName: keyof typeof config.bookIDs;
+	args: keyof typeof config.bookIDs.Biologia;
+}
+const cmd: Command = {
+	channelName: "Angielski gr.1",
+	args: "pdr"
+};
+
 // Main function
 (async () => {
 
@@ -20,6 +30,9 @@ const website = "https://odrabiamy.pl/";
 	// Allow cookies
 	await page.click("#qa-rodo-accept");
 
-	// await page.evaluate((config) => console.log(config.bookIDs), config);
+	// Go to book's page
+	await page.goto(website + config.bookIDs[cmd.channelName][cmd.args]);
+
+	// await page.evaluate((config, cmd) => console.log(config.bookIDs[cmd.channelName][cmd.args]), config, cmd);
 	// await page.screenshot({ path: "page.png", fullPage: true });
 })();
