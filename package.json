@@ -2,10 +2,10 @@
 	"name": "odrabiamy-bot",
 	"version": "0.1.0",
 	"description": "Discord bot for retreiving data from https://odrabiamy.pl/",
-	"main": "index.js",
+	"main": "main.ts",
+	"type": "module",
 	"scripts": {
-		"start": "ts-node src/main.ts",
-		"serve": "ts-node-dev --respawn src/main.ts"
+		"start": "ts-node-dev --respawn src/main.ts"
 	},
 	"repository": {
 		"type": "git",
@@ -19,7 +19,11 @@
 	},
 	"homepage": "https://github.com/matijas-05/odrabiamy-bot#readme",
 	"devDependencies": {
+		"@types/puppeteer": "^5.4.5",
 		"ts-node": "^10.6.0",
 		"ts-node-dev": "^1.1.8"
+	},
+	"dependencies": {
+		"puppeteer": "^13.4.1"
 	}
 }
