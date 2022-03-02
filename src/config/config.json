@@ -1,42 +1,42 @@
 {
-	"Polski": {
+	"948175719031267330": {
 		"pdr": "jezyk-polski/ksiazka-12533/"
 	},
-	"Matematyka": {
+	"948179420743618580": {
 		"pdr": "matematyka/ksiazka-13007/",
 		"cw": "matematyka/ksiazka-13128/"
 	},
-	"Niemiecki gr.1": {
+	"948177957048963102": {
 		"pdr": "jezyk-niemiecki/ksiazka-11861/",
 		"cw": "jezyk-niemiecki/ksiazka-11862/"
 	},
-	"Niemiecki gr.2": {
+	"948179571293954078": {
 		"pdr": "jezyk-niemiecki/ksiazka-12444/",
 		"cw": "jezyk-niemiecki/ksiazka-12445/"
 	},
-	"Angielski gr.1": {
+	"948179690458337320": {
 		"pdr": "jezyk-angielski/ksiazka-12671/",
 		"cw": "jezyk-angielski/ksiazka-12672/"
 	},
-	"Angielski gr.2": {
+	"948179828652273714": {
 		"pdr": "jezyk-angielski/ksiazka-12035/",
 		"cw": "jezyk-angielski/ksiazka-11931/"
 	},
-	"Biologia": {
+	"948179940908621834": {
 		"pdr": "biologia/ksiazka-12570/"
 	},
-	"Chemia": {
+	"948180174707523644": {
 		"pdr": "chemia/ksiazka-12806/"
 	},
-	"Geografia": {
+	"948180229740969994": {
 		"pdr": "geografia/ksiazka-12427/",
 		"cw": "geografia/ksiazka-12427/"
 	},
-	"Podstawy przedsiębiorczości": {
+	"948180269192593418": {
 		"pdr": "pp/ksiazka-12440/",
 		"cw": "pp/ksiazka-12567/"
 	},
-	"Fizyka": {
+	"948180309550182400": {
 		"pdr": "/",
 		"cw": "/"
 	}

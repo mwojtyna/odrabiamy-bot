@@ -6,22 +6,6 @@ import { CacheType, Client, Collection, CommandInteraction, Intents } from "disc
 import { token } from "./config/discord.json";
 
 import pup from "puppeteer";
-import config from "./config/config.json";
-
-//-----------------------------------------------
-type MockCommand = {
-	channelName: keyof typeof config;
-	type: keyof typeof config.Matematyka.pdr | typeof config.Matematyka.cw;
-	page: number,
-	exercise: string
-}
-const cmd: MockCommand = {
-	channelName: "Matematyka",
-	type: "pdr",
-	page: 53,
-	exercise: "2"
-};
-// ---------------------------------------------
 
 // ---------- DISCORD ---------
 export type Command = {
@@ -41,7 +25,7 @@ export type Command = {
 		const command = await import(`./commands/${file}`) as Command;
 		commands.set(command.data.name, command);
 	}
-	
+
 	// Execute commands
 	client.on("interactionCreate", async interaction => {
 		if (!interaction.isCommand())
@@ -59,12 +43,12 @@ export type Command = {
 			await interaction.reply({ content: `Coś się zepsuło :(\n\n${error}` });
 		}
 	})
-	
+
 	await client.login(token);
 })();
 
 // ---------- SCRAPING ----------
-async function scrape(cmd: MockCommand) {
+export async function scrape(bookUrl: string, page: number, exercise: string): Promise<string[]> {
 
 	// Setup browser
 	const width = 1800;
@@ -72,7 +56,7 @@ async function scrape(cmd: MockCommand) {
 	const website = "https://odrabiamy.pl/";
 
 	const browser = await pup.launch({
-		devtools: true,
+		// devtools: true,
 		args: [`--window-size=${width},${height}`,],
 		defaultViewport: { width: width, height: height }
 	});
@@ -84,23 +68,29 @@ async function scrape(cmd: MockCommand) {
 	await webPage.click("#qa-rodo-accept");
 
 	// Go to correct webpage
-	await webPage.goto(webPage.url() + config[cmd.channelName][cmd.type] + `strona-${cmd.page}`);
+	await webPage.goto(webPage.url() + bookUrl + `strona-${page}`);
 
 	// Choose exercise and take screenshot
-	const exerciseCleaned = cmd.exercise.replace(".", "\\.");
+	const exerciseCleaned = exercise.replace(".", "\\.");
 	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 	if (exerciseBtns.length === 0)
 		throw new Error("Nie znaleziono takiego zadania!");
 
 	await webPage.waitForTimeout(100);
+	const screenShotNames: string[] = [];
 	for (let i = 0; i < exerciseBtns.length; i++) {
 		exerciseBtns[i].click();
 		await webPage.waitForTimeout(500);
-		await takeScreenshot(`screenshots/${cmd.channelName}-${cmd.type.toString()} zad.${cmd.exercise}${exerciseBtns.length > 1 ? `-${i + 1}` : ""} str.${cmd.page}.png`, webPage);
+
+		const screeShotName = `screenshots/screen-${i + 1}.png`;
+		screenShotNames.push(screeShotName);
+		await takeScreenshot(screeShotName, webPage);
 	}
+
+	return screenShotNames;
 }
-async function takeScreenshot(path: string, webPage: pup.Page) {
+export async function takeScreenshot(path: string, webPage: pup.Page) {
 	await webPage.screenshot({ path: path, fullPage: true });
 }
 

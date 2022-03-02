@@ -1,5 +1,5 @@
 import { REST } from "@discordjs/rest";
-import { Routes } from "discord-api-types/v9";
+import { Routes } from "discord-api-types/v10";
 import { token, appID, guildID } from "./config/discord.json";
 import * as fs from "fs";
 import path from "path";
@@ -18,8 +18,8 @@ import { Command } from "./main";
 	}
 	console.log(commands);
 
-	const rest = new REST({ version: "9" }).setToken(token);
+	const rest = new REST({ version: "10" }).setToken(token);
 	rest.put(Routes.applicationGuildCommands(appID, guildID), { body: commands })
 		.then(() => console.log("Registered commands."))
-		.catch(() => console.error("Error registering commands."));
+		.catch((err) => console.error(`Error registering commands.\n\n${err}`));
 })();
