@@ -38,9 +38,9 @@ export type Command = {
 
 		try {
 			await command.execute(interaction);
-		} catch (error) {
+		} catch (error: any) {
 			console.error(error);
-			await interaction.reply({ content: `Coś się zepsuło :(\n\n${error}` });
+			await interaction.reply({ content: "Błąd:\n\n" + error.message });
 		}
 	})
 
