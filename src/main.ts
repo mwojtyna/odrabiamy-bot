@@ -89,7 +89,7 @@ export async function scrape(bookUrl: string, page: number, exercise: number): P
 
 	return [screenShotNames, ""];
 }
-export async function takeScreenshot(path: string, webPage: pup.Page) {
+async function takeScreenshot(path: string, webPage: pup.Page) {
 	await webPage.screenshot({ path: path, fullPage: true });
 }
 
