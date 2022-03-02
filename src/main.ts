@@ -49,45 +49,49 @@ export type Command = {
 
 // ---------- SCRAPING ----------
 export async function scrape(bookUrl: string, page: number, exercise: number): Promise<[string[], string]> {
-	// Setup browser
-	const width = 1800;
-	const height = 1300;
-	const website = "https://odrabiamy.pl/";
+	try {
+		// Setup browser
+		const width = 1800;
+		const height = 1300;
+		const website = "https://odrabiamy.pl/";
+		const browser = await pup.launch({
+			// devtools: true,
+			args: [`--window-size=${width},${height}`,],
+			defaultViewport: { width: width, height: height }
+		});
 
-	const browser = await pup.launch({
-		// devtools: true,
-		args: [`--window-size=${width},${height}`,],
-		defaultViewport: { width: width, height: height }
-	});
+		const [webPage] = await browser.pages();
+		await webPage.goto(website);
 
-	const [webPage] = await browser.pages();
-	await webPage.goto(website);
+		// Allow cookies
+		await webPage.click("#qa-rodo-accept");
 
-	// Allow cookies
-	await webPage.click("#qa-rodo-accept");
+		// Go to correct webpage
+		await webPage.goto(webPage.url() + bookUrl + `strona-${page}`);
 
-	// Go to correct webpage
-	await webPage.goto(webPage.url() + bookUrl + `strona-${page}`);
+		// Choose exercise and take screenshot
+		const exerciseCleaned = exercise.toString().replace(".", "\\.");
+		const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
-	// Choose exercise and take screenshot
-	const exerciseCleaned = exercise.toString().replace(".", "\\.");
-	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
+		if (exerciseBtns.length === 0)
+			return [[], "Nie znaleziono takiego zadania!"]
 
-	if (exerciseBtns.length === 0)
-		return [[], "Nie znaleziono takiego zadania!"]
+		await webPage.waitForTimeout(100);
+		const screenShotNames: string[] = [];
+		for (let i = 0; i < exerciseBtns.length; i++) {
+			exerciseBtns[i].click();
+			await webPage.waitForTimeout(500);
 
-	await webPage.waitForTimeout(100);
-	const screenShotNames: string[] = [];
-	for (let i = 0; i < exerciseBtns.length; i++) {
-		exerciseBtns[i].click();
-		await webPage.waitForTimeout(500);
+			const screeShotName = `screenshots/screen-${i + 1}.png`;
+			screenShotNames.push(screeShotName);
+			await takeScreenshot(screeShotName, webPage);
+		}
 
-		const screeShotName = `screenshots/screen-${i + 1}.png`;
-		screenShotNames.push(screeShotName);
-		await takeScreenshot(screeShotName, webPage);
+		return [screenShotNames, ""];
 	}
-
-	return [screenShotNames, ""];
+	catch (err: any) {
+		return [[], "Błąd:\n\n" + err.message]
+	}
 }
 async function takeScreenshot(path: string, webPage: pup.Page) {
 	await webPage.screenshot({ path: path, fullPage: true });

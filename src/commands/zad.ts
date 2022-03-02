@@ -8,7 +8,7 @@ module.exports = {
 		.setName("zad")
 		.setDescription("Odpowiada na kanale 'odpowiedzi' z screenem zadania.")
 		.addStringOption(option =>
-			option.setName("rodzaj_książki")
+			option.setName("rodzaj")
 				.setDescription("Wybierz rodzaj książki")
 				.setRequired(true)
 				.addChoice("podręcznik", "pdr")
@@ -27,13 +27,14 @@ module.exports = {
 	async execute(interaction: CommandInteraction<CacheType>) {
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
-		const bookType = interaction.options.getString("rodzaj_książki");
+		const bookType = interaction.options.getString("rodzaj");
 		const page = interaction.options.getInteger("strona")!;
 		const exercise = interaction.options.getNumber("zadanie")!;
 
-		if (!subject.hasOwnProperty(bookType))
-			throw new Error("Nie ma takiej książki!");
-		
+		if (!subject.hasOwnProperty(bookType)) {
+			interaction.reply("Nie ma takiej książki!");
+		}
+
 		// Animate response message
 		let finished = false;
 		await interaction.reply("Ściąganie odpowiedzi");
@@ -45,7 +46,7 @@ module.exports = {
 		const [screenShots, error] = await scrape(subject[bookType], page, exercise);
 		finished = true;
 
-		if(error !== "") {
+		if (error !== "") {
 			await interaction.channel?.send(error);
 			return;
 		}
