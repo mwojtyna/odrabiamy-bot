@@ -48,8 +48,7 @@ export type Command = {
 })();
 
 // ---------- SCRAPING ----------
-export async function scrape(bookUrl: string, page: number, exercise: string): Promise<[string[], string]> {
-
+export async function scrape(bookUrl: string, page: number, exercise: number): Promise<[string[], string]> {
 	// Setup browser
 	const width = 1800;
 	const height = 1300;
@@ -71,7 +70,7 @@ export async function scrape(bookUrl: string, page: number, exercise: string): P
 	await webPage.goto(webPage.url() + bookUrl + `strona-${page}`);
 
 	// Choose exercise and take screenshot
-	const exerciseCleaned = exercise.replace(".", "\\.");
+	const exerciseCleaned = exercise.toString().replace(".", "\\.");
 	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 	if (exerciseBtns.length === 0)

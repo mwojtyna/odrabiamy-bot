@@ -16,18 +16,20 @@ module.exports = {
 		.addIntegerOption(option =>
 			option.setName("strona")
 				.setDescription("Wpisz numer strony")
-				.setRequired(true))
-		.addStringOption(option =>
+				.setRequired(true)
+				.setMinValue(1))
+		.addNumberOption(option =>
 			option.setName("zadanie")
 				.setDescription("Wpisz numer zadania")
-				.setRequired(true)),
+				.setRequired(true)
+				.setMinValue(1)),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
 		const bookType = interaction.options.getString("rodzaj_książki");
 		const page = interaction.options.getInteger("strona")!;
-		const exercise = interaction.options.getString("zadanie")!;
+		const exercise = interaction.options.getNumber("zadanie")!;
 
 		if (!subject.hasOwnProperty(bookType))
 			throw new Error("Nie ma takiej książki!");
