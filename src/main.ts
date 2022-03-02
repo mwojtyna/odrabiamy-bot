@@ -97,7 +97,7 @@ export async function scrape(bookUrl: string, page: number, exercise: number): P
 
 			const screenShotName = `screenshots/screen-${i + 1}.png`;
 			screenShotNames.push(screenShotName);
-			await takeScreenshot(screenShotName, webPage);
+			await webPage.screenshot({ path: screenShotName, fullPage: true });
 		}
 
 		await webPage.close();
@@ -106,9 +106,6 @@ export async function scrape(bookUrl: string, page: number, exercise: number): P
 	catch (err: any) {
 		return [[], "Błąd:\n\n" + err.message]
 	}
-}
-async function takeScreenshot(path: string, webPage: pup.Page) {
-	await webPage.screenshot({ path: path, fullPage: true });
 }
 
 async function print(object: any, webPage: pup.Page) {
