@@ -107,4 +107,5 @@ dist
 screenshots/
 
 # Files with private information
-src/config/discord.json
+src/config/auth.json
+user_data/

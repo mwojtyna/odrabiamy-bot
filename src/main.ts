@@ -3,7 +3,7 @@ import path from "path"
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, Client, Collection, CommandInteraction, Intents } from "discord.js";
-import { token } from "./config/discord.json";
+import { token, userName, password } from "./config/auth.json";
 
 import pup from "puppeteer";
 
@@ -56,6 +56,8 @@ export async function scrape(bookUrl: string, page: number, exercise: number): P
 		const website = "https://odrabiamy.pl/";
 		const browser = await pup.launch({
 			// devtools: true,
+			// headless: false,
+			userDataDir: "./user_data",
 			args: [`--window-size=${width},${height}`,],
 			defaultViewport: { width: width, height: height }
 		});
@@ -64,10 +66,21 @@ export async function scrape(bookUrl: string, page: number, exercise: number): P
 		await webPage.goto(website);
 
 		// Allow cookies
-		await webPage.click("#qa-rodo-accept");
+		if (await webPage.$("#qa-rodo-accept") !== null)
+			await webPage.click("#qa-rodo-accept");
+
+		// Login if not logged in
+		if (webPage.url() !== "https://odrabiamy.pl/moje") {
+			await webPage.click("#qa-login-button");
+			await webPage.waitForNavigation();
+			await webPage.type('input[type="email"]', userName);
+			await webPage.type('input[type="password"]', password);
+			await webPage.click("#qa-login");
+			await webPage.waitForNavigation();
+		}
 
 		// Go to correct webpage
-		await webPage.goto(webPage.url() + bookUrl + `strona-${page}`);
+		await webPage.goto(website + bookUrl + `strona-${page}`);
 
 		// Choose exercise and take screenshot
 		const exerciseCleaned = exercise.toString().replace(".", "\\.");
@@ -82,11 +95,12 @@ export async function scrape(bookUrl: string, page: number, exercise: number): P
 			exerciseBtns[i].click();
 			await webPage.waitForTimeout(500);
 
-			const screeShotName = `screenshots/screen-${i + 1}.png`;
-			screenShotNames.push(screeShotName);
-			await takeScreenshot(screeShotName, webPage);
+			const screenShotName = `screenshots/screen-${i + 1}.png`;
+			screenShotNames.push(screenShotName);
+			await takeScreenshot(screenShotName, webPage);
 		}
 
+		await webPage.close();
 		return [screenShotNames, ""];
 	}
 	catch (err: any) {
