@@ -105,3 +105,6 @@ dist
 
 # Website screenshots
 screenshots/
+
+# Files with private information
+src/config/discord.json
