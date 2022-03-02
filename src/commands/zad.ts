@@ -40,8 +40,13 @@ module.exports = {
 		};
 
 		// Scrape and display
-		const screenShots = await scrape(subject[bookType], page, exercise);
+		const [screenShots, error] = await scrape(subject[bookType], page, exercise);
 		finished = true;
+
+		if(error !== "") {
+			await interaction.channel?.send(error);
+			return;
+		}
 
 		await interaction.channel?.send({ files: screenShots });
 		if (screenShots.length > 1)

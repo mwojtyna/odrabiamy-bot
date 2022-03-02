@@ -48,7 +48,7 @@ export type Command = {
 })();
 
 // ---------- SCRAPING ----------
-export async function scrape(bookUrl: string, page: number, exercise: string): Promise<string[]> {
+export async function scrape(bookUrl: string, page: number, exercise: string): Promise<[string[], string]> {
 
 	// Setup browser
 	const width = 1800;
@@ -75,7 +75,7 @@ export async function scrape(bookUrl: string, page: number, exercise: string): P
 	const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 	if (exerciseBtns.length === 0)
-		throw new Error("Nie znaleziono takiego zadania!");
+		return [[], "Nie znaleziono takiego zadania!"]
 
 	await webPage.waitForTimeout(100);
 	const screenShotNames: string[] = [];
@@ -88,7 +88,7 @@ export async function scrape(bookUrl: string, page: number, exercise: string): P
 		await takeScreenshot(screeShotName, webPage);
 	}
 
-	return screenShotNames;
+	return [screenShotNames, ""];
 }
 export async function takeScreenshot(path: string, webPage: pup.Page) {
 	await webPage.screenshot({ path: path, fullPage: true });
