@@ -7,6 +7,6 @@ module.exports = {
 		.setDescription("Odpowiada 'pong'"),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-		await interaction.reply("pong!");
+		await interaction.reply("pong");
 	},
 };

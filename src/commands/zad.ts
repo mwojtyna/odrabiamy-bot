@@ -31,12 +31,11 @@ module.exports = {
 
 		if (!subject.hasOwnProperty(bookType))
 			throw new Error("Nie ma takiej książki!");
-
+		
+		// Animate response message
 		let finished = false;
 		await interaction.reply("Ściąganie odpowiedzi");
-
-		// Animate response message
-		for (let i = 0; i < 9; i++) {
+		for (let i = 0; i < 6; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
 		};
 
@@ -46,6 +45,6 @@ module.exports = {
 
 		await interaction.channel?.send({ files: screenShots });
 		if (screenShots.length > 1)
-			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.")
+			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 	}
 }
