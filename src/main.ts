@@ -6,6 +6,8 @@ import { CacheType, Client, Collection, CommandInteraction, Intents } from "disc
 import { token, userName, password } from "./config/auth.json";
 
 import pup from "puppeteer";
+import pupE from "puppeteer-extra"
+import stealthPlugin from "puppeteer-extra-plugin-stealth"
 
 // ---------- DISCORD ---------
 export type Command = {
@@ -54,7 +56,9 @@ export async function scrape(bookUrl: string, page: number, exercise: string): P
 		const width = 1800;
 		const height = 1300;
 		const website = "https://odrabiamy.pl/";
-		const browser = await pup.launch({
+		const browser = await pupE
+		.use(stealthPlugin())
+		.launch({
 			// devtools: true,
 			// headless: false,
 			userDataDir: "./user_data",
@@ -80,7 +84,7 @@ export async function scrape(bookUrl: string, page: number, exercise: string): P
 		}
 
 		// Go to correct webpage
-		await webPage.goto(website + bookUrl + `strona-${page}`);
+		await webPage.goto(website + bookUrl + `strona-${page}`, {"waitUntil" : "networkidle0"});
 
 		// Choose exercise and take screenshot
 		const exerciseCleaned = exercise.replace(".", "\\.");

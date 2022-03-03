@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
-import { registerCustomQueryHandler } from "puppeteer";
 import config from "../config/config.json";
 import { scrape } from "../main";
 

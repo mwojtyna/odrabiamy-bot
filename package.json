@@ -28,6 +28,8 @@
 		"@discordjs/rest": "^0.3.0",
 		"discord-api-types": "^0.27.3",
 		"discord.js": "^13.6.0",
-		"puppeteer": "^13.4.1"
+		"puppeteer": "^13.4.1",
+		"puppeteer-extra": "^3.2.3",
+		"puppeteer-extra-plugin-stealth": "^2.9.0"
 	}
 }
