@@ -72,7 +72,17 @@ module.exports = {
 						// devtools: true,
 						// headless: false,
 						userDataDir: "./user_data",
-						args: [`--window-size=${width},${height}`,],
+						args: [
+							`--window-size=${width},${height}`,
+							'--no-sandbox',
+							'--disable-setuid-sandbox',
+							'--disable-dev-shm-usage',
+							'--disable-accelerated-2d-canvas',
+							'--no-first-run',
+							'--no-zygote',
+							// '--single-process', // <- this one doesn't works in Windows
+							'--disable-gpu'
+						],
 						defaultViewport: { width: width, height: height }
 					});
 
