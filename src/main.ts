@@ -91,14 +91,12 @@ export async function scrape(bookUrl: string, page: number, exercise: string): P
 		const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 		if (exerciseBtns.length === 0)
-			return [[], "Nie znaleziono takiego zadania!"]
+			return [[], "Nie znaleziono takiego zadania!"];
 
-		await webPage.waitForTimeout(100);
 		const screenShotNames: string[] = [];
 		for (let i = 0; i < exerciseBtns.length; i++) {
-			exerciseBtns[i].click();
+			await exerciseBtns[i].click();
 			await webPage.waitForTimeout(500);
-
 			const screenShotName = `screenshots/screen-${i + 1}.png`;
 			screenShotNames.push(screenShotName);
 			await webPage.screenshot({ path: screenShotName, fullPage: true });

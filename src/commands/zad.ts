@@ -40,7 +40,6 @@ module.exports = {
 		}
 
 		// Animate response message
-		let finished = false;
 		await interaction.reply("Ściąganie odpowiedzi");
 		for (let i = 0; i < 6; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
@@ -48,7 +47,6 @@ module.exports = {
 
 		// Scrape and display
 		const [screenShots, error] = await scrape(subject[bookType], page, exercise);
-		finished = true;
 
 		if (error !== "") {
 			await interaction.channel?.send(error);
