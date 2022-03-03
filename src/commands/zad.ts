@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
+import { registerCustomQueryHandler } from "puppeteer";
 import config from "../config/config.json";
 import { scrape } from "../main";
 
@@ -18,21 +19,25 @@ module.exports = {
 				.setDescription("Wpisz numer strony")
 				.setRequired(true)
 				.setMinValue(1))
-		.addNumberOption(option =>
+		.addStringOption(option =>
 			option.setName("zadanie")
 				.setDescription("Wpisz numer zadania")
-				.setRequired(true)
-				.setMinValue(1)),
+				.setRequired(true)),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
 		const bookType = interaction.options.getString("rodzaj");
 		const page = interaction.options.getInteger("strona")!;
-		const exercise = interaction.options.getNumber("zadanie")!;
+		const exercise = interaction.options.getString("zadanie")!;
 
+		if (!subject) {
+			interaction.reply("Komenda nie jest dostępna w tym kanale!");
+			return;
+		}
 		if (!subject.hasOwnProperty(bookType)) {
 			interaction.reply("Nie ma takiej książki!");
+			return;
 		}
 
 		// Animate response message

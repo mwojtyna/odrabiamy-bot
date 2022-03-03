@@ -4,7 +4,8 @@
 	"description": "Discord bot for retreiving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
-		"start": "ts-node-dev --respawn src/main.ts"
+		"dev": "ts-node-dev --respawn src/main.ts",
+		"build": "ts-node src/commands-deploy.ts "
 	},
 	"repository": {
 		"type": "git",
