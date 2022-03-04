@@ -9,7 +9,6 @@
 		"build": "ts-node src/commands-deploy.ts ",
 		"clear": "rm -r user_data && rm src/config/cookies.json",
 
-		// SERVER SIDE ONLY
 		"deploy": "pm2 --name bot start npm -- start",
 		"undeploy": "pm2 delete 0"
 	},
