@@ -125,8 +125,16 @@ module.exports = {
 				// Go to correct webpage
 				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
 
-				// Choose exercise and take screenshot
-				const exerciseCleaned = exercise.replaceAll(".", "\\.");
+				// Parse exercise number
+				let exerciseCleaned = exercise;
+				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && subject["trailingDot"] !== "true")
+					exerciseCleaned = exerciseCleaned.slice(0, -1);
+				else if (exerciseCleaned.charAt(exerciseCleaned.length - 1) !== "." && subject["trailingDot"] === "true")
+					exerciseCleaned += ".";
+
+				exerciseCleaned = exerciseCleaned.replaceAll(".", "\\.");
+
+				// Select exercise and take screenshots
 				const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 				if (exerciseBtns.length === 0)
