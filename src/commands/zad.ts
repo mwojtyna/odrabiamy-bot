@@ -75,7 +75,7 @@ module.exports = {
 					.use(stealthPlugin())
 					.launch({
 						// devtools: true,
-						headless: false,
+						// headless: false,
 						userDataDir: "./user_data",
 						args: [
 							`--window-size=${width},${height}`,
