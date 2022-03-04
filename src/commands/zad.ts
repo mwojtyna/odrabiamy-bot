@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
 import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
-import pup from "puppeteer-extra"
+import pupE from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
 
 module.exports = {
@@ -66,7 +66,7 @@ module.exports = {
 				const width = 1800;
 				const height = 1300;
 				const website = "https://odrabiamy.pl/";
-				const browser = await pup
+				const browser = await pupE
 					.use(stealthPlugin())
 					.launch({
 						// devtools: true,
@@ -86,7 +86,7 @@ module.exports = {
 						defaultViewport: { width: width, height: height }
 					});
 
-				const webPage = await browser.pages()[0];
+				const [webPage] = await browser.pages();
 				await webPage.goto(website);
 
 				// Allow cookies
@@ -102,7 +102,7 @@ module.exports = {
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
 				}
-				
+
 				// Go to correct webpage
 				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
 
