@@ -10,7 +10,7 @@ import fsp from "fs/promises";
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
-		.setDescription("Odpowiada na kanale 'odpowiedzi' z screenem zadania.")
+		.setDescription("Odpowiada na kanałach 'komendy' z screenem zadania.")
 		.addStringOption(option =>
 			option.setName("rodzaj")
 				.setDescription("Wybierz rodzaj książki")
