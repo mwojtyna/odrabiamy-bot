@@ -108,4 +108,5 @@ screenshots/
 
 # Files with private information
 src/config/auth.json
+src/config/cookies.json
 user_data/
