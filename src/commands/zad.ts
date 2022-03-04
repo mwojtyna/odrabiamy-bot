@@ -135,7 +135,7 @@ module.exports = {
 				const screenShotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					await exerciseBtns[i].click();
-					await webPage.waitForTimeout(1000);
+					await webPage.waitForTimeout(2000);
 					const screenShotName = `screenshots/screen-${i + 1}.png`;
 					screenShotNames.push(screenShotName);
 					await webPage.screenshot({ path: screenShotName, fullPage: true });
