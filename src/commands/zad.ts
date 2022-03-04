@@ -4,8 +4,6 @@ import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
 import pupE from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
-import fs from "fs";
-import fsp from "fs/promises";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -28,7 +26,6 @@ module.exports = {
 				.setRequired(true)),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
 		const bookType = interaction.options.getString("rodzaj");
@@ -69,7 +66,6 @@ module.exports = {
 				const width = 1800;
 				const height = 1300;
 				const website = "https://odrabiamy.pl/";
-				const cookiesPath = "src/config/cookies.json";
 
 				const browser = await pupE
 					.use(stealthPlugin())
@@ -94,14 +90,7 @@ module.exports = {
 				const [webPage] = await browser.pages();
 				await webPage.goto(website);
 
-				// Read cookies from file
-				if (fs.existsSync(cookiesPath)) {
-					const cookiesString = await fsp.readFile(cookiesPath);
-					const cookies = JSON.parse(cookiesString.toString());
-					await webPage.setCookie(...cookies);
-				}
-
-				// Allow cookies if needed
+				// Allow cookies
 				if (await webPage.$("#qa-rodo-accept") !== null)
 					await webPage.click("#qa-rodo-accept");
 
@@ -115,14 +104,8 @@ module.exports = {
 					await webPage.waitForNavigation();
 				}
 
-				// Output cookies to reuse in server instance
-				if (!fs.existsSync(cookiesPath)) {
-					const cookies = await webPage.cookies();
-					await fsp.writeFile(cookiesPath, JSON.stringify(cookies, null, 2));
-				}
-
 				// Go to correct webpage
-				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
+				await webPage.goto(website + bookUrl + `strona-${page}`);
 
 				// Choose exercise and take screenshot
 				const exerciseCleaned = exercise.replaceAll(".", "\\.");
@@ -134,7 +117,7 @@ module.exports = {
 				const screenShotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					await exerciseBtns[i].click();
-					await webPage.waitForTimeout(500);
+					await webPage.waitForTimeout(1000);
 					const screenShotName = `screenshots/screen-${i + 1}.png`;
 					screenShotNames.push(screenShotName);
 					await webPage.screenshot({ path: screenShotName, fullPage: true });
