@@ -46,7 +46,7 @@ module.exports = {
 
 		// Animate response message
 		await interaction.reply("Ściąganie odpowiedzi");
-		for (let i = 0; i < 6; i++) {
+		for (let i = 0; i < 12; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
 		};
 
@@ -66,8 +66,8 @@ module.exports = {
 		async function scrape(bookUrl: string, page: number, exercise: string): Promise<[string[], string]> {
 			try {
 				// Setup browser
-				const width = 1800;
-				const height = 1300;
+				const width = 1200;
+				const height = 1200;
 				const website = "https://odrabiamy.pl/";
 				const cookiesPath = "src/config/cookies.json";
 
@@ -105,7 +105,7 @@ module.exports = {
 					await webPage.setCookie(...cookies);
 				}
 				else {
-					// ! USE ONLY IN LOCAL MACHINE
+					// ! USE ONLY ON LOCAL MACHINE
 					// Login if not logged in
 					if (webPage.url() !== "https://odrabiamy.pl/moje") {
 						await webPage.click("#qa-login-button");
