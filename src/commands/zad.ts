@@ -4,7 +4,6 @@ import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
 import pupE from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
-import userAgent from "user-agents";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -67,8 +66,9 @@ module.exports = {
 				const width = 1800;
 				const height = 1300;
 				const website = "https://odrabiamy.pl/";
+				
+				pupE.use(stealthPlugin());
 				const browser = await pupE
-					.use(stealthPlugin())
 					.launch({
 						// devtools: true,
 						// headless: false,
@@ -96,7 +96,6 @@ module.exports = {
 
 				// Login if not logged in
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
-					await webPage.setUserAgent(userAgent.toString());
 					await webPage.click("#qa-login-button");
 					await webPage.waitForNavigation();
 					await webPage.type('input[type="email"]', userName);

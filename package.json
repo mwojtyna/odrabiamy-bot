@@ -21,7 +21,6 @@
 	"homepage": "https://github.com/matijas-05/odrabiamy-bot#readme",
 	"devDependencies": {
 		"@types/puppeteer": "^5.4.5",
-		"@types/user-agents": "^1.0.2",
 		"ts-node": "^10.6.0",
 		"ts-node-dev": "^1.1.8"
 	},
@@ -32,7 +31,6 @@
 		"discord.js": "^13.6.0",
 		"puppeteer": "^13.4.1",
 		"puppeteer-extra": "^3.2.3",
-		"puppeteer-extra-plugin-stealth": "^2.9.0",
-		"user-agents": "^1.0.945"
+		"puppeteer-extra-plugin-stealth": "^2.9.0"
 	}
 }
