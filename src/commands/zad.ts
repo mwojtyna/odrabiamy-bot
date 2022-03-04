@@ -75,7 +75,7 @@ module.exports = {
 					.use(stealthPlugin())
 					.launch({
 						// devtools: true,
-						// headless: false,
+						headless: false,
 						userDataDir: "./user_data",
 						args: [
 							`--window-size=${width},${height}`,
@@ -94,27 +94,28 @@ module.exports = {
 				const [webPage] = await browser.pages();
 				await webPage.goto(website);
 
+				// Allow cookies if needed
+				if (await webPage.$("#qa-rodo-accept") !== null)
+					await webPage.click("#qa-rodo-accept");
+
 				// Read cookies from file
 				if (fs.existsSync(cookiesPath)) {
 					const cookiesString = await fsp.readFile(cookiesPath);
 					const cookies = JSON.parse(cookiesString.toString());
 					await webPage.setCookie(...cookies);
 				}
-
-				// Allow cookies if needed
-				if (await webPage.$("#qa-rodo-accept") !== null)
-					await webPage.click("#qa-rodo-accept");
-
-				// Login if not logged in
-				if (webPage.url() !== "https://odrabiamy.pl/moje") {
-					await webPage.click("#qa-login-button");
-					await webPage.waitForNavigation();
-					await webPage.type('input[type="email"]', userName);
-					await webPage.type('input[type="password"]', password);
-					await webPage.click("#qa-login");
-					await webPage.waitForNavigation();
+				else {
+					// ! USE ONLY IN LOCAL MACHINE
+					// Login if not logged in
+					if (webPage.url() !== "https://odrabiamy.pl/moje") {
+						await webPage.click("#qa-login-button");
+						await webPage.waitForNavigation();
+						await webPage.type('input[type="email"]', userName);
+						await webPage.type('input[type="password"]', password);
+						await webPage.click("#qa-login");
+						await webPage.waitForNavigation();
+					}
 				}
-
 				// Output cookies to reuse in server instance
 				if (!fs.existsSync(cookiesPath)) {
 					const cookies = await webPage.cookies();

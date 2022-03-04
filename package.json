@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "ts-node src/main.ts",
 		"dev": "ts-node-dev --respawn src/main.ts",
-		"build": "ts-node src/commands-deploy.ts "
+		"build": "ts-node src/commands-deploy.ts ",
+		"clear": "rm -r user_dir && rm src/config/cookies.json"
 	},
 	"repository": {
 		"type": "git",
