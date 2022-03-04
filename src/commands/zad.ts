@@ -70,7 +70,7 @@ module.exports = {
 					.use(stealthPlugin())
 					.launch({
 						// devtools: true,
-						// headless: false,
+						headless: false,
 						userDataDir: "./user_data",
 						args: [
 							`--window-size=${width},${height}`,
@@ -104,7 +104,7 @@ module.exports = {
 				}
 
 				// Go to correct webpage
-				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
+				await webPage.goto(website + bookUrl + `strona-${page}`);
 
 				// Choose exercise and take screenshot
 				const exerciseCleaned = exercise.replaceAll(".", "\\.");
@@ -116,7 +116,7 @@ module.exports = {
 				const screenShotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					await exerciseBtns[i].click();
-					await webPage.waitForTimeout(500);
+					await webPage.waitForTimeout(1000);
 					const screenShotName = `screenshots/screen-${i + 1}.png`;
 					screenShotNames.push(screenShotName);
 					await webPage.screenshot({ path: screenShotName, fullPage: true });
