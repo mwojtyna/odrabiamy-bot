@@ -7,7 +7,8 @@
 		"start": "ts-node src/main.ts",
 		"dev": "ts-node-dev --respawn src/main.ts",
 		"build": "ts-node src/commands-deploy.ts ",
-		"clear": "rm -r user_data && rm src/config/cookies.json"
+		"clear": "rm -r user_data && rm src/config/cookies.json",
+		"deploy": "pm2 --name bot start npm -- start"
 	},
 	"repository": {
 		"type": "git",
