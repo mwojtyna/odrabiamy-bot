@@ -31,7 +31,7 @@ module.exports = {
 
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
-		const bookType = interaction.options.getString("rodzaj");
+		const bookType = interaction.options.getString("rodzaj_książki");
 		const page = interaction.options.getInteger("strona")!;
 		const exercise = interaction.options.getString("zadanie")!;
 
