@@ -12,7 +12,7 @@ module.exports = {
 		.setName("zad")
 		.setDescription("Odpowiada na kanałach 'komendy' z screenem zadania.")
 		.addStringOption(option =>
-			option.setName("rodzaj")
+			option.setName("rodzaj_książki")
 				.setDescription("Wybierz rodzaj książki")
 				.setRequired(true)
 				.addChoice("podręcznik", "pdr")
