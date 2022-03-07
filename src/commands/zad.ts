@@ -149,7 +149,7 @@ module.exports = {
 					await webPage.screenshot({ path: screenShotName, fullPage: true });
 				}
 
-				await webPage.close();
+				await browser.close();
 				return [screenShotNames, ""];
 			}
 			catch (err: any) {
