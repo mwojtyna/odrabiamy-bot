@@ -63,6 +63,7 @@ module.exports = {
 
 		if (error !== "") {
 			await interaction.channel?.send(error);
+			beingUsed = false;
 			return;
 		}
 
