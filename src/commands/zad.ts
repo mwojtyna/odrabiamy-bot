@@ -117,6 +117,8 @@ module.exports = {
 					await webPage.setCookie(...cookies);
 				}
 				else {
+					return [[], "Błąd: Pliki cookies wygasły!"];
+
 					// ! USE ONLY ON LOCAL MACHINE
 					// Login if not logged in
 					if (webPage.url() !== "https://odrabiamy.pl/moje") {
