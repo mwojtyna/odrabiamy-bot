@@ -104,7 +104,7 @@ dist
 .tern-port
 
 # Website screenshots
-screenshots/
+screenshots/*
 
 # Files with private information
 src/config/auth.json
