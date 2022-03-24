@@ -6,6 +6,7 @@ import pupE from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
 import fs from "fs";
 import fsp from "fs/promises";
+import { Browser } from "puppeteer";
 
 let beingUsed = false;
 module.exports = {
@@ -83,7 +84,7 @@ module.exports = {
 				const website = "https://odrabiamy.pl/";
 				const cookiesPath = "src/config/cookies.json";
 
-				const browser = await pupE
+				var browser = await pupE
 					.use(stealthPlugin())
 					.launch({
 						// devtools: true,
@@ -117,6 +118,7 @@ module.exports = {
 					await webPage.setCookie(...cookies);
 				}
 				else {
+					await browser.close();
 					return [[], "Pliki cookies wygasły!"];
 
 					// ! USE ONLY ON LOCAL MACHINE
@@ -152,7 +154,10 @@ module.exports = {
 				const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
 
 				if (exerciseBtns.length === 0)
+				{
+					await browser.close();
 					return [[], "Nie znaleziono takiego zadania!"];
+				}
 
 				const screenShotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
@@ -167,6 +172,8 @@ module.exports = {
 				return [screenShotNames, ""];
 			}
 			catch (err: any) {
+				// @ts-ignore
+				await browser.close();
 				return [[], "Błąd:\n\n" + err.message]
 			}
 		}
