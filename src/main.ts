@@ -1,9 +1,9 @@
 import * as fs from "fs";
-import path from "path"
+import path from "path";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, Client, Collection, CommandInteraction, Intents } from "discord.js";
-import { token } from "./config/auth.json"
+import { token } from "./config/auth.json";
 
 export type Command = {
 	data: SlashCommandBuilder,
@@ -39,7 +39,7 @@ export type Command = {
 			console.error(error);
 			await interaction.reply({ content: "Błąd:\n\n" + error.message });
 		}
-	})
+	});
 
 	await client.login(token);
 })();

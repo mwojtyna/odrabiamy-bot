@@ -2,8 +2,8 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
 import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
-import pupE from "puppeteer-extra"
-import stealthPlugin from "puppeteer-extra-plugin-stealth"
+import pupE from "puppeteer-extra";
+import stealthPlugin from "puppeteer-extra-plugin-stealth";
 
 let beingUsed = false;
 module.exports = {
@@ -44,7 +44,7 @@ module.exports = {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
 			return;
 		}
-		if (!subject.hasOwnProperty(bookType)) {
+		if (!Object.prototype.hasOwnProperty.call(subject, bookType!)) {
 			await interaction.reply("Nie ma takiej książki!");
 			return;
 		}
@@ -53,7 +53,7 @@ module.exports = {
 		await interaction.reply("Ściąganie odpowiedzi");
 		for (let i = 0; i < 12; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
-		};
+		}
 
 		// Scrape and display
 		const { screenshots, error, loggedIn } = await scrape(subject[bookType], page, exercise);
@@ -82,7 +82,7 @@ module.exports = {
 			const height = 1200;
 			const website = "https://odrabiamy.pl/";
 
-			var browser = await pupE
+			const browser = await pupE
 				.use(stealthPlugin())
 				.launch({
 					// devtools: true,
@@ -90,14 +90,14 @@ module.exports = {
 					userDataDir: "./user_data",
 					args: [
 						`--window-size=${width},${height}`,
-						'--no-sandbox',
-						'--disable-setuid-sandbox',
-						'--disable-dev-shm-usage',
-						'--disable-accelerated-2d-canvas',
-						'--no-first-run',
-						'--no-zygote',
+						"--no-sandbox",
+						"--disable-setuid-sandbox",
+						"--disable-dev-shm-usage",
+						"--disable-accelerated-2d-canvas",
+						"--no-first-run",
+						"--no-zygote",
 						// '--single-process', // <- this one doesn't works on Windows
-						'--disable-gpu'
+						"--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
 				});
@@ -114,10 +114,10 @@ module.exports = {
 
 				// Login if not logged in or cookies expired
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
-					await webPage.click('[data-testid="login-button"]');
+					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
-					await webPage.type('input[type="email"]', userName);
-					await webPage.type('input[type="password"]', password);
+					await webPage.type("input[type='email']", userName);
+					await webPage.type("input[type='password']", password);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
 					loggedIn = true;
@@ -162,4 +162,4 @@ module.exports = {
 			}
 		}
 	}
-}
+};
