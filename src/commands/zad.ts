@@ -3,6 +3,8 @@ import { CacheType, CommandInteraction } from "discord.js";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
+
+import { Command } from "../main";
 import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
 
@@ -174,4 +176,4 @@ export = {
 			}
 		}
 	}
-};
+} as Command;
