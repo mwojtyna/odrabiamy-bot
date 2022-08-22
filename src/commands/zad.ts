@@ -4,8 +4,6 @@ import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
 import pupE from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
-import fs from "fs";
-import fsp from "fs/promises";
 
 let beingUsed = false;
 module.exports = {
@@ -29,11 +27,11 @@ module.exports = {
 				.setRequired(true)),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-		if(beingUsed) {
+		if (beingUsed) {
 			await interaction.reply("Bot jest już używany przez inną osobę!");
 			return;
 		}
-		
+
 		// Lock command when it's being used by someone else
 		beingUsed = true;
 
@@ -42,7 +40,6 @@ module.exports = {
 		const bookType = interaction.options.getString("rodzaj_książki");
 		const page = interaction.options.getInteger("strona")!;
 		const exercise = interaction.options.getString("zadanie")!;
-
 		if (!subject) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
 			return;
@@ -52,35 +49,38 @@ module.exports = {
 			return;
 		}
 
-		// Animate response message
+		// Respond and animate message
 		await interaction.reply("Ściąganie odpowiedzi");
 		for (let i = 0; i < 12; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
 		};
 
 		// Scrape and display
-		const [screenShots, error] = await scrape(subject[bookType], page, exercise);
-
-		if (error !== "") {
-			await interaction.channel?.send(error);
+		const { screenshots, error, loggedIn } = await scrape(subject[bookType], page, exercise);
+		if (error) {
+			await interaction.channel?.send(error!);
 			beingUsed = false;
 			return;
 		}
 
-		await interaction.channel?.send({ files: screenShots });
-		if (screenShots.length > 1)
+		// Final response
+		await interaction.channel?.send({ files: screenshots });
+		if (loggedIn) interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
+		if (screenshots!.length > 1)
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
-		// Unlock command
 		beingUsed = false;
 
-		// Main logic
-		async function scrape(bookUrl: string, page: number, exercise: string): Promise<[string[], string]> {
+		interface ScrapeResult {
+			screenshots?: string[];
+			error?: string;
+			loggedIn?: boolean;
+		}
+		async function scrape(bookUrl: string, page: number, exercise: string): Promise<ScrapeResult> {
 			// Setup browser
 			const width = 1200;
 			const height = 1200;
 			const website = "https://odrabiamy.pl/";
-			const cookiesPath = "src/config/cookies.json";
 
 			var browser = await pupE
 				.use(stealthPlugin())
@@ -96,7 +96,7 @@ module.exports = {
 						'--disable-accelerated-2d-canvas',
 						'--no-first-run',
 						'--no-zygote',
-						// '--single-process', // <- this one doesn't works in Windows
+						// '--single-process', // <- this one doesn't works on Windows
 						'--disable-gpu'
 					],
 					defaultViewport: { width: width, height: height }
@@ -106,73 +106,59 @@ module.exports = {
 			await webPage.goto(website);
 
 			try {
+				let loggedIn = false;
+
 				// Allow cookies if needed
 				if (await webPage.$("#qa-rodo-accept") !== null)
 					await webPage.click("#qa-rodo-accept");
 
-				// Read cookies from file
-				if (fs.existsSync(cookiesPath)) {
-					const cookiesString = await fsp.readFile(cookiesPath);
-					const cookies = JSON.parse(cookiesString.toString());
-					await webPage.setCookie(...cookies);
-				}
-				else {
-					await browser.close();
-					return [[], "Pliki cookies wygasły!"];
-
-					// ! USE ONLY ON LOCAL MACHINE
-					// Login if not logged in
-					if (webPage.url() !== "https://odrabiamy.pl/moje") {
-						await webPage.click("#qa-login-button");
-						await webPage.waitForNavigation();
-						await webPage.type('input[type="email"]', userName);
-						await webPage.type('input[type="password"]', password);
-						await webPage.click("#qa-login");
-						await webPage.waitForNavigation();
-					}
-				}
-				// Output cookies to reuse in server instance
-				if (!fs.existsSync(cookiesPath)) {
-					const cookies = await webPage.cookies();
-					await fsp.writeFile(cookiesPath, JSON.stringify(cookies, null, 2));
+				// Login if not logged in or cookies expired
+				if (webPage.url() !== "https://odrabiamy.pl/moje") {
+					await webPage.click('[data-testid="login-button"]');
+					await webPage.waitForNavigation();
+					await webPage.type('input[type="email"]', userName);
+					await webPage.type('input[type="password"]', password);
+					await webPage.click("#qa-login");
+					await webPage.waitForNavigation();
+					loggedIn = true;
 				}
 
-				// Go to correct webpage
+				// Go to correct page
 				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
 
 				// Parse exercise number
 				let exerciseCleaned = exercise;
-				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && subject["trailingDot"] !== "true")
+				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !subject["trailingDot"])
 					exerciseCleaned = exerciseCleaned.slice(0, -1);
-				else if (exerciseCleaned.charAt(exerciseCleaned.length - 1) !== "." && subject["trailingDot"] === "true")
+				else if (exerciseCleaned.charAt(exerciseCleaned.length - 1) !== "." && subject["trailingDot"])
 					exerciseCleaned += ".";
 
 				exerciseCleaned = exerciseCleaned.replaceAll(".", "\\.");
 
 				// Select exercise and take screenshots
 				const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
-
-				if (exerciseBtns.length === 0)
-				{
+				if (exerciseBtns.length === 0) {
 					await browser.close();
-					return [[], "Nie znaleziono takiego zadania!"];
+					return { error: "Nie znaleziono zadania o podanym numerze." };
 				}
 
-				const screenShotNames: string[] = [];
+				const screenshotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					await exerciseBtns[i].click();
-					await webPage.waitForTimeout(2000);
-					const screenShotName = `screenshots/screen-${i + 1}.png`;
-					screenShotNames.push(screenShotName);
-					await webPage.screenshot({ path: screenShotName, fullPage: true });
+					await webPage.waitForNavigation({ waitUntil: "networkidle0" });
+					await webPage.waitForTimeout(1000);
+
+					const screenshotName = `screenshots/screen-${i + 1}.png`;
+					screenshotNames.push(screenshotName);
+					await webPage.screenshot({ path: screenshotName, fullPage: true });
 				}
 
 				await browser.close();
-				return [screenShotNames, ""];
+				return { screenshots: screenshotNames, loggedIn: loggedIn };
 			}
 			catch (err: any) {
 				await browser.close();
-				return [[], "Błąd:\n\n" + err.message]
+				return { error: "Błąd:\n\n" + err.message };
 			}
 		}
 	}
