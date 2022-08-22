@@ -6,7 +6,6 @@ import pupE from "puppeteer-extra"
 import stealthPlugin from "puppeteer-extra-plugin-stealth"
 import fs from "fs";
 import fsp from "fs/promises";
-import { Browser } from "puppeteer";
 
 let beingUsed = false;
 module.exports = {
@@ -77,36 +76,36 @@ module.exports = {
 
 		// Main logic
 		async function scrape(bookUrl: string, page: number, exercise: string): Promise<[string[], string]> {
+			// Setup browser
+			const width = 1200;
+			const height = 1200;
+			const website = "https://odrabiamy.pl/";
+			const cookiesPath = "src/config/cookies.json";
+
+			var browser = await pupE
+				.use(stealthPlugin())
+				.launch({
+					// devtools: true,
+					// headless: false,
+					userDataDir: "./user_data",
+					args: [
+						`--window-size=${width},${height}`,
+						'--no-sandbox',
+						'--disable-setuid-sandbox',
+						'--disable-dev-shm-usage',
+						'--disable-accelerated-2d-canvas',
+						'--no-first-run',
+						'--no-zygote',
+						// '--single-process', // <- this one doesn't works in Windows
+						'--disable-gpu'
+					],
+					defaultViewport: { width: width, height: height }
+				});
+
+			const [webPage] = await browser.pages();
+			await webPage.goto(website);
+
 			try {
-				// Setup browser
-				const width = 1200;
-				const height = 1200;
-				const website = "https://odrabiamy.pl/";
-				const cookiesPath = "src/config/cookies.json";
-
-				var browser = await pupE
-					.use(stealthPlugin())
-					.launch({
-						// devtools: true,
-						// headless: false,
-						userDataDir: "./user_data",
-						args: [
-							`--window-size=${width},${height}`,
-							'--no-sandbox',
-							'--disable-setuid-sandbox',
-							'--disable-dev-shm-usage',
-							'--disable-accelerated-2d-canvas',
-							'--no-first-run',
-							'--no-zygote',
-							// '--single-process', // <- this one doesn't works in Windows
-							'--disable-gpu'
-						],
-						defaultViewport: { width: width, height: height }
-					});
-
-				const [webPage] = await browser.pages();
-				await webPage.goto(website);
-
 				// Allow cookies if needed
 				if (await webPage.$("#qa-rodo-accept") !== null)
 					await webPage.click("#qa-rodo-accept");
@@ -172,7 +171,6 @@ module.exports = {
 				return [screenShotNames, ""];
 			}
 			catch (err: any) {
-				// @ts-ignore
 				await browser.close();
 				return [[], "Błąd:\n\n" + err.message]
 			}
