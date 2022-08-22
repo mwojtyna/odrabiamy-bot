@@ -8,7 +8,7 @@ import { Command } from "./main";
 //** Run 'npx ts-node src/commands-deploy.ts' to register commands. Bot must be running first */
 
 (async () => {
-	const commands: any = [];
+	const commands = [];
 	const files = fs.readdirSync(path.resolve(`${__dirname}/commands`, ".")).filter(file => file.endsWith(".ts"));
 	console.log("Commands found: " + files);
 

@@ -24,20 +24,20 @@
 	"homepage": "https://github.com/matijas-05/odrabiamy-bot#readme",
 	"devDependencies": {
 		"@types/fs-extra": "^9.0.13",
-		"@types/puppeteer": "^5.4.5",
-		"@typescript-eslint/eslint-plugin": "^5.33.1",
-		"@typescript-eslint/parser": "^5.33.1",
-		"ts-node": "^10.6.0",
-		"ts-node-dev": "^1.1.8"
+		"@types/puppeteer": "^5.4.6",
+		"@typescript-eslint/eslint-plugin": "^5.34.0",
+		"@typescript-eslint/parser": "^5.34.0",
+		"ts-node": "^10.9.1",
+		"ts-node-dev": "^2.0.0"
 	},
 	"dependencies": {
-		"@discordjs/builders": "^0.12.0",
-		"@discordjs/rest": "^0.3.0",
-		"discord-api-types": "^0.27.3",
-		"discord.js": "^13.6.0",
+		"@discordjs/builders": "^1.2.0",
+		"@discordjs/rest": "^1.1.0",
+		"discord-api-types": "^0.37.4",
+		"discord.js": "^14.3.0",
 		"fs-extra": "^10.1.0",
-		"puppeteer": "^13.4.1",
-		"puppeteer-extra": "^3.2.3",
-		"puppeteer-extra-plugin-stealth": "^2.9.0"
+		"puppeteer": "^16.2.0",
+		"puppeteer-extra": "^3.3.4",
+		"puppeteer-extra-plugin-stealth": "^2.11.1"
 	}
 }

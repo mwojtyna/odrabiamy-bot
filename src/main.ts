@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import path from "path";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CacheType, Client, Collection, CommandInteraction, Intents } from "discord.js";
+import { CacheType, Client, Collection, CommandInteraction } from "discord.js";
 import { token } from "./config/auth.json";
 
 export type Command = {
@@ -12,7 +12,7 @@ export type Command = {
 
 (async () => {
 	// Setup bot
-	const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+	const client = new Client({ intents: "Guilds" });
 	client.once("ready", () => console.log("ready"));
 
 	// Retrieve commands

@@ -15,8 +15,10 @@ export = {
 			option.setName("rodzaj_książki")
 				.setDescription("Wybierz rodzaj książki")
 				.setRequired(true)
-				.addChoice("podręcznik", "pdr")
-				.addChoice("ćwiczenia/zbiór zadań", "cw"))
+				.addChoices(
+					{ name: "podręcznik", value: "pdr" },
+					{ name: "ćwiczenia/zbiór zadań", value: "cw" }
+				))
 		.addIntegerOption(option =>
 			option.setName("strona")
 				.setDescription("Wpisz numer strony")
@@ -38,9 +40,9 @@ export = {
 
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
-		const bookType = interaction.options.getString("rodzaj_książki");
-		const page = interaction.options.getInteger("strona")!;
-		const exercise = interaction.options.getString("zadanie")!;
+		const bookType = interaction.options.get("rodzaj_książki")!.value as string;
+		const page = interaction.options.get("strona")!.value as number;
+		const exercise = interaction.options.get("zadanie")!.value as string;
 		if (!subject) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
 			return;
