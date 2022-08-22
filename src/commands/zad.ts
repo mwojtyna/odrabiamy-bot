@@ -71,6 +71,7 @@ module.exports = {
 
 		beingUsed = false;
 
+		// SCRAPING
 		interface ScrapeResult {
 			screenshots?: string[];
 			error?: string;
@@ -127,6 +128,11 @@ module.exports = {
 				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
 
 				// Parse exercise number
+				if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
+					await browser.close();
+					return { error: "Błędny numer zadania!" };
+				}
+
 				let exerciseCleaned = exercise;
 				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !subject["trailingDot"])
 					exerciseCleaned = exerciseCleaned.slice(0, -1);
