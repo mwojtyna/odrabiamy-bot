@@ -1,9 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
+import pup from "puppeteer-extra";
+import stealthPlugin from "puppeteer-extra-plugin-stealth";
+import fs from "fs-extra";
 import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
-import pupE from "puppeteer-extra";
-import stealthPlugin from "puppeteer-extra-plugin-stealth";
 
 let beingUsed = false;
 module.exports = {
@@ -69,6 +70,7 @@ module.exports = {
 		if (screenshots!.length > 1)
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
+		fs.emptyDirSync("screenshots/");
 		beingUsed = false;
 
 		// SCRAPING
@@ -83,7 +85,7 @@ module.exports = {
 			const height = 1200;
 			const website = "https://odrabiamy.pl/";
 
-			const browser = await pupE
+			const browser = await pup
 				.use(stealthPlugin())
 				.launch({
 					// devtools: true,
@@ -153,6 +155,8 @@ module.exports = {
 					await exerciseBtns[i].click();
 					await webPage.waitForNavigation({ waitUntil: "networkidle0" });
 					await webPage.waitForTimeout(1000);
+
+					if (!fs.existsSync("screenshots/")) fs.mkdirSync("screenshots/");
 
 					const screenshotName = `screenshots/screen-${i + 1}.png`;
 					screenshotNames.push(screenshotName);
