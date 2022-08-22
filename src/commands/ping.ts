@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
 
-module.exports = {
+export = {
 	data: new SlashCommandBuilder()
 		.setName("ping")
 		.setDescription("Odpowiada 'pong'"),

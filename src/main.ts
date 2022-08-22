@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 
 import { SlashCommandBuilder } from "@discordjs/builders";

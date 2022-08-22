@@ -7,7 +7,7 @@ import config from "../config/config.json";
 import { userName, password } from "../config/auth.json";
 
 let beingUsed = false;
-module.exports = {
+export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
 		.setDescription("Odpowiada na kanałach 'komendy' z screenem zadania.")
