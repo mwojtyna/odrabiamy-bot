@@ -3,7 +3,6 @@ import path from "path";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, Client, Collection, CommandInteraction } from "discord.js";
-import { token } from "./config/auth.json";
 
 export type Command = {
 	data: SlashCommandBuilder,
@@ -11,6 +10,13 @@ export type Command = {
 }
 
 (async () => {
+	if (!fs.existsSync(path.resolve(__dirname, "./config/auth.json"))) {
+		console.error("Missing auth.json file!");
+		return;
+	}
+	// @ts-ignore
+	const { token } = await import("./config/auth.json");
+
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
 	client.once("ready", () => console.log("ready"));

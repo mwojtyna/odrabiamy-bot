@@ -106,7 +106,7 @@ dist
 # Website screenshots
 screenshots/
 
-# Files with private information
+# Sensitive data
 src/config/auth.json
 user_data/
 

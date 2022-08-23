@@ -1,2 +1,2 @@
 # odrabiamy-bot
-Discord bot for retreiving data from https://odrabiamy.pl/
+Discord bot for retrieving data from https://odrabiamy.pl/

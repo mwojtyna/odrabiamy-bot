@@ -1,0 +1,8 @@
+# Unnecessary files
+node_modules/
+.vscode/
+screenshots/
+
+# Sensitive data
+src/config/auth.json
+user_data/
