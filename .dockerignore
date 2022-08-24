@@ -5,4 +5,4 @@ screenshots/
 
 # Sensitive data
 .env
-src/config/user_data/
+src/config/cookies.json

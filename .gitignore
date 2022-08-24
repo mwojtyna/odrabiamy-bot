@@ -107,7 +107,7 @@ dist
 screenshots/
 
 # Sensitive data
-src/config/user_data/
+src/config/cookies.json
 
 # VS Code
 .vscode/

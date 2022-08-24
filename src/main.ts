@@ -38,7 +38,7 @@ export type Command = {
 		try {
 			await command.execute(interaction);
 		} catch (error: any) {
-			await interaction.reply({ content: "Błąd:\n\n" + error.message });
+			await interaction.channel?.send({ content: "Błąd (main.ts):\n\n" + error.message });
 		}
 	});
 
