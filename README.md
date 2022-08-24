@@ -11,14 +11,14 @@ docker run -d \
 	-e EMAIL="<email>" \
 	-e PASSWORD="<password>" \
 	-v "config:/app/src/config" \
-	matijas05/odrabiamy-bot:<image_version>
+	matijas05/odrabiamy-bot:1.2
 ```
 OR
 ```bash
 docker run -d --name odrabiamy-bot \
 	--env-file <.env_file_path> \
 	-v "config:/app/src/config" \
-	matijas05/odrabiamy-bot:<image_version>
+	matijas05/odrabiamy-bot:1.2
 ```
 where env-file is a text file containing environment variables separated by a <ins>**new line**</ins> and with <ins>**no quotes**</ins>.
 Volume is mostly for debug purposes, bot will run just fine without it.
