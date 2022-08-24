@@ -107,7 +107,6 @@ dist
 screenshots/
 
 # Sensitive data
-src/config/auth.json
 user_data/
 
 # VS Code

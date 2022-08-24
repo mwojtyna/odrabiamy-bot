@@ -7,7 +7,6 @@ import path from "path";
 
 import { Command } from "../main";
 import config from "../config/config.json";
-import { userName, password } from "../config/auth.json";
 
 let beingUsed = false;
 export = {
@@ -127,8 +126,8 @@ export = {
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
-					await webPage.type("input[type='email']", userName);
-					await webPage.type("input[type='password']", password);
+					await webPage.type("input[type='email']", process.env.USERNAME!);
+					await webPage.type("input[type='password']", process.env.PASSWORD!);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");

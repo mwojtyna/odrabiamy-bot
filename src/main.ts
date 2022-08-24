@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import dotenv from "dotenv";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, Client, Collection, CommandInteraction } from "discord.js";
@@ -10,12 +11,7 @@ export type Command = {
 }
 
 (async () => {
-	if (!fs.existsSync(path.resolve(__dirname, "./config/auth.json"))) {
-		console.error("Missing auth.json file!");
-		return;
-	}
-	// @ts-ignore
-	const { token } = await import("./config/auth.json");
+	dotenv.config();
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
@@ -47,5 +43,5 @@ export type Command = {
 		}
 	});
 
-	await client.login(token);
+	await client.login(process.env.TOKEN);
 })();
