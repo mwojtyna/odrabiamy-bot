@@ -3,10 +3,10 @@ import { CacheType, CommandInteraction } from "discord.js";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
+import path from "path";
 
 import { Command } from "../main";
 import config from "../config/config.json";
-import { userName, password } from "../config/auth.json";
 
 let beingUsed = false;
 export = {
@@ -47,21 +47,28 @@ export = {
 		const exercise = interaction.options.get("zadanie")!.value as string;
 		if (!subject) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
+			beingUsed = false;
 			return;
 		}
 		if (!Object.prototype.hasOwnProperty.call(subject, bookType!)) {
 			await interaction.reply("Nie ma takiej książki!");
+			beingUsed = false;
+			return;
+		}
+		if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
+			await interaction.reply("Błędny numer zadania!");
+			beingUsed = false;
 			return;
 		}
 
 		// Respond and animate message
 		await interaction.reply("Ściąganie odpowiedzi");
-		for (let i = 0; i < 12; i++) {
+		for (let i = 0; i < 18; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
 		}
 
 		// Scrape and display
-		const { screenshots, error, loggedIn } = await scrape(subject[bookType], page, exercise);
+		const { screenshots, error } = await scrape(subject[bookType], page, exercise);
 		if (error) {
 			await interaction.channel?.send(error!);
 			beingUsed = false;
@@ -70,7 +77,6 @@ export = {
 
 		// Final response
 		await interaction.channel?.send({ files: screenshots });
-		if (loggedIn) interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 		if (screenshots!.length > 1)
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
@@ -81,20 +87,20 @@ export = {
 		interface ScrapeResult {
 			screenshots?: string[];
 			error?: string;
-			loggedIn?: boolean;
 		}
 		async function scrape(bookUrl: string, page: number, exercise: string): Promise<ScrapeResult> {
 			// Setup browser
 			const width = 1200;
 			const height = 1200;
 			const website = "https://odrabiamy.pl/";
+			const cookiesPath = path.resolve(__dirname, "../config/cookies.json");
 
 			const browser = await pup
 				.use(stealthPlugin())
 				.launch({
 					// devtools: true,
 					// headless: false,
-					userDataDir: "./user_data",
+					// userDataDir: path.resolve(__dirname, "../config/user_data"),	// Path has to be absolute because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
@@ -104,41 +110,59 @@ export = {
 						"--no-first-run",
 						"--no-zygote",
 						// '--single-process', // <- this one doesn't works on Windows
-						"--disable-gpu"
+						// "--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
 				});
 
-			const [webPage] = await browser.pages();
-			await webPage.goto(website);
+			const date = new Date();
+			console.log(`------ ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()} ------`);
+			console.log("1. started chrome");
 
 			try {
-				let loggedIn = false;
+				// Load page
+				const [webPage] = await browser.pages();
+				await webPage.goto(website);
+				console.log("2. website loaded");
 
-				// Allow cookies if needed
-				if (await webPage.$("#qa-rodo-accept") !== null)
+				// Load cookies
+				if (fs.existsSync(cookiesPath)) {
+					const cookiesString = await fs.readFile(cookiesPath, { encoding: "utf-8" });
+					const cookies = JSON.parse(cookiesString);
+					await webPage.setCookie(...cookies);
+					await webPage.reload();
+					console.log("3. cookies loaded: " + cookiesPath);
+				}
+
+				// Allow cookies
+				if (await webPage.$("#qa-rodo-accept") !== null) {
 					await webPage.click("#qa-rodo-accept");
+					console.log("4. cookies accepted");
+				}
 
+				console.log("5. url: " + webPage.url());
 				// Login if not logged in or cookies expired
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
-					await webPage.type("input[type='email']", userName);
-					await webPage.type("input[type='password']", password);
+					await webPage.type("input[type='email']", process.env.EMAIL);
+					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
-					loggedIn = true;
+					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
+					console.log("6. logged in");
+
+					// Set cookies after login
+					const cookies = await webPage.cookies();
+					fs.writeFile(path.resolve(__dirname, "../config/cookies.json"), JSON.stringify(cookies, null, 2));
+					console.log("7. cookies set");
 				}
 
 				// Go to correct page
-				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
+				await webPage.goto(website + bookUrl + `strona-${page}`, { waitUntil: "domcontentloaded" });
+				console.log("8. changed page");
 
 				// Parse exercise number
-				if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
-					await browser.close();
-					return { error: "Błędny numer zadania!" };
-				}
-
 				let exerciseCleaned = exercise;
 				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !subject["trailingDot"])
 					exerciseCleaned = exerciseCleaned.slice(0, -1);
@@ -153,26 +177,33 @@ export = {
 					await browser.close();
 					return { error: "Nie znaleziono zadania o podanym numerze." };
 				}
+				console.log("9. found exercise buttons");
 
 				const screenshotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					await exerciseBtns[i].click();
-					await webPage.waitForNavigation({ waitUntil: "networkidle0" });
-					await webPage.waitForTimeout(1000);
+					console.log("10. clicked exercise button " + i);
+					await webPage.waitForNavigation({ waitUntil: "domcontentloaded" });
+					await new Promise(r => setTimeout(r, 1000));
+					console.log("11. exercise loaded");
 
-					if (!fs.existsSync("screenshots/")) fs.mkdirSync("screenshots/");
+					if (!fs.existsSync("screenshots/")) {
+						fs.mkdirSync("screenshots/");
+					}
 
 					const screenshotName = `screenshots/screen-${i + 1}.png`;
 					screenshotNames.push(screenshotName);
 					await webPage.screenshot({ path: screenshotName, fullPage: true });
+					console.log("12. took screenshot");
 				}
 
 				await browser.close();
-				return { screenshots: screenshotNames, loggedIn: loggedIn };
+				console.log("13. browser closed\n");
+				return { screenshots: screenshotNames };
 			}
 			catch (err: any) {
 				await browser.close();
-				return { error: "Błąd:\n\n" + err.message };
+				return { error: "Błąd (zad.ts):\n\n" + err.message };
 			}
 		}
 	}

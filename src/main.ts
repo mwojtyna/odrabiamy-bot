@@ -1,8 +1,9 @@
-import fs from "fs-extra";
-import path from "path";
-
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, Client, Collection, CommandInteraction } from "discord.js";
+import fs from "fs-extra";
+import path from "path";
+import dotenv from "dotenv";
+import clc from "cli-color";
 
 export type Command = {
 	data: SlashCommandBuilder,
@@ -10,16 +11,11 @@ export type Command = {
 }
 
 (async () => {
-	if (!fs.existsSync(path.resolve(__dirname, "./config/auth.json"))) {
-		console.error("Missing auth.json file!");
-		return;
-	}
-	// @ts-ignore
-	const { token } = await import("./config/auth.json");
+	dotenv.config();
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
-	client.once("ready", () => console.log("ready"));
+	client.once("ready", () => console.log(clc.green("ready")));
 
 	// Retrieve commands
 	const commands = new Collection<string, Command>();
@@ -42,10 +38,9 @@ export type Command = {
 		try {
 			await command.execute(interaction);
 		} catch (error: any) {
-			console.error(error);
-			await interaction.reply({ content: "Błąd:\n\n" + error.message });
+			await interaction.channel?.send({ content: "Błąd (main.ts):\n\n" + error.message });
 		}
 	});
 
-	await client.login(token);
+	await client.login(process.env.TOKEN);
 })();
