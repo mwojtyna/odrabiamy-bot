@@ -3,6 +3,7 @@ import { CacheType, CommandInteraction } from "discord.js";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
+import path from "path";
 
 import { Command } from "../main";
 import config from "../config/config.json";
@@ -47,10 +48,17 @@ export = {
 		const exercise = interaction.options.get("zadanie")!.value as string;
 		if (!subject) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
+			beingUsed = false;
 			return;
 		}
 		if (!Object.prototype.hasOwnProperty.call(subject, bookType!)) {
 			await interaction.reply("Nie ma takiej książki!");
+			beingUsed = false;
+			return;
+		}
+		if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
+			await interaction.reply("Błędny numer zadania!");
+			beingUsed = false;
 			return;
 		}
 
@@ -61,7 +69,7 @@ export = {
 		}
 
 		// Scrape and display
-		const { screenshots, error, loggedIn } = await scrape(subject[bookType], page, exercise);
+		const { screenshots, error } = await scrape(subject[bookType], page, exercise);
 		if (error) {
 			await interaction.channel?.send(error!);
 			beingUsed = false;
@@ -70,7 +78,6 @@ export = {
 
 		// Final response
 		await interaction.channel?.send({ files: screenshots });
-		if (loggedIn) interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 		if (screenshots!.length > 1)
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
@@ -81,7 +88,6 @@ export = {
 		interface ScrapeResult {
 			screenshots?: string[];
 			error?: string;
-			loggedIn?: boolean;
 		}
 		async function scrape(bookUrl: string, page: number, exercise: string): Promise<ScrapeResult> {
 			// Setup browser
@@ -94,7 +100,7 @@ export = {
 				.launch({
 					// devtools: true,
 					// headless: false,
-					userDataDir: "./user_data",
+					userDataDir: path.resolve(__dirname, "../../user_data"),	// Path has to be absolute, because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
@@ -104,7 +110,7 @@ export = {
 						"--no-first-run",
 						"--no-zygote",
 						// '--single-process', // <- this one doesn't works on Windows
-						"--disable-gpu"
+						// "--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
 				});
@@ -113,8 +119,6 @@ export = {
 			await webPage.goto(website);
 
 			try {
-				let loggedIn = false;
-
 				// Allow cookies if needed
 				if (await webPage.$("#qa-rodo-accept") !== null)
 					await webPage.click("#qa-rodo-accept");
@@ -127,18 +131,13 @@ export = {
 					await webPage.type("input[type='password']", password);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
-					loggedIn = true;
+					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 				}
 
 				// Go to correct page
 				await webPage.goto(website + bookUrl + `strona-${page}`, { "waitUntil": "networkidle0" });
 
 				// Parse exercise number
-				if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
-					await browser.close();
-					return { error: "Błędny numer zadania!" };
-				}
-
 				let exerciseCleaned = exercise;
 				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !subject["trailingDot"])
 					exerciseCleaned = exerciseCleaned.slice(0, -1);
@@ -168,7 +167,7 @@ export = {
 				}
 
 				await browser.close();
-				return { screenshots: screenshotNames, loggedIn: loggedIn };
+				return { screenshots: screenshotNames };
 			}
 			catch (err: any) {
 				await browser.close();
