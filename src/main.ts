@@ -1,9 +1,9 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CacheType, Client, Collection, CommandInteraction } from "discord.js";
 import fs from "fs-extra";
 import path from "path";
 import dotenv from "dotenv";
-
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { CacheType, Client, Collection, CommandInteraction } from "discord.js";
+import clc from "cli-color";
 
 export type Command = {
 	data: SlashCommandBuilder,
@@ -15,7 +15,7 @@ export type Command = {
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
-	client.once("ready", () => console.log("ready"));
+	client.once("ready", () => console.log(clc.green("ready")));
 
 	// Retrieve commands
 	const commands = new Collection<string, Command>();
@@ -38,7 +38,6 @@ export type Command = {
 		try {
 			await command.execute(interaction);
 		} catch (error: any) {
-			console.error(error);
 			await interaction.reply({ content: "Błąd:\n\n" + error.message });
 		}
 	});

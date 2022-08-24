@@ -4,12 +4,10 @@
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
-		"start": "ts-node src/main.ts",
-		"dev": "ts-node-dev --respawn src/main.ts",
-		"build": "ts-node src/commands-deploy.ts ",
-		"logout": "rm -r user_data",
-		"deploy": "pm2 --name bot start npm -- start",
-		"undeploy": "pm2 delete 0"
+		"start": "ts-node --files src/main.ts",
+		"dev": "ts-node-dev --files --respawn src/main.ts",
+		"build": "ts-node --files src/commands-deploy.ts ",
+		"logout": "rm -r user_data"
 	},
 	"repository": {
 		"type": "git",
@@ -23,6 +21,7 @@
 	},
 	"homepage": "https://github.com/matijas-05/odrabiamy-bot#readme",
 	"devDependencies": {
+		"@types/cli-color": "^2.0.2",
 		"@types/fs-extra": "^9.0.13",
 		"@types/puppeteer": "^5.4.6",
 		"@typescript-eslint/eslint-plugin": "^5.34.0",
@@ -33,6 +32,7 @@
 	"dependencies": {
 		"@discordjs/builders": "^1.2.0",
 		"@discordjs/rest": "^1.1.0",
+		"cli-color": "^2.0.3",
 		"discord-api-types": "^0.37.4",
 		"discord.js": "^14.3.0",
 		"dotenv": "^16.0.1",

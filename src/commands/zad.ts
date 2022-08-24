@@ -99,7 +99,7 @@ export = {
 				.launch({
 					// devtools: true,
 					// headless: false,
-					userDataDir: path.resolve(__dirname, "../../user_data"),	// Path has to be absolute, because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
+					userDataDir: path.resolve(__dirname, "../../user_data"),	// Path has to be absolute because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
@@ -126,8 +126,8 @@ export = {
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
-					await webPage.type("input[type='email']", process.env.USERNAME!);
-					await webPage.type("input[type='password']", process.env.PASSWORD!);
+					await webPage.type("input[type='email']", process.env.USERNAME);
+					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
@@ -156,7 +156,7 @@ export = {
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					await exerciseBtns[i].click();
 					await webPage.waitForNavigation({ waitUntil: "networkidle0" });
-					await webPage.waitForTimeout(1000);
+					await new Promise(r => setTimeout(r, 1000));
 
 					if (!fs.existsSync("screenshots/")) fs.mkdirSync("screenshots/");
 
