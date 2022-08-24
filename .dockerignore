@@ -5,4 +5,4 @@ screenshots/
 
 # Sensitive data
 .env
-user_data/
+src/config/user_data/

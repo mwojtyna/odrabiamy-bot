@@ -4,7 +4,7 @@ declare global {
 			TOKEN: string;
 			APP_ID: string;
 			GUILD_ID: string;
-			USERNAME: string;
+			EMAIL: string;
 			PASSWORD: string;
 		}
 	}

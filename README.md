@@ -8,7 +8,7 @@ docker run -d \
 	-e TOKEN="<token>" \
 	-e APP_ID="<app_id>" \
 	-e GUILD_ID="<guild_id>" \
-	-e USERNAME="<username>" \
+	-e EMAIL="<email>" \
 	-e PASSWORD="<password>" \
 	matijas05/odrabiamy-bot:<image_version>
 ```
@@ -22,5 +22,5 @@ where env-file is a text file containing environment variables separated by a <i
 - TOKEN: Discord bot token from your application on https://discord.com/developers
 - APP_ID: Application ID from your application on https://discord.com/developers
 - GUILD_ID: Right-click on your Discord server and choose "Copy ID"
-- USERNAME: Username of a user that has a premium account on https://odrabiamy.pl
+- EMAIL: Email of a user that has a premium account on https://odrabiamy.pl
 - PASSWORD: Password of a user that has a premium account on https://odrabiamy.pl

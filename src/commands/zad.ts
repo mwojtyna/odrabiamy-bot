@@ -99,7 +99,7 @@ export = {
 				.launch({
 					// devtools: true,
 					// headless: false,
-					userDataDir: path.resolve(__dirname, "../../user_data"),	// Path has to be absolute because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
+					userDataDir: path.resolve(__dirname, "../config/user_data"),	// Path has to be absolute because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
@@ -126,7 +126,7 @@ export = {
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
-					await webPage.type("input[type='email']", process.env.USERNAME);
+					await webPage.type("input[type='email']", process.env.EMAIL);
 					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
