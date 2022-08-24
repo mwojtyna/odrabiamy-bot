@@ -8,7 +8,11 @@ import path from "path";
 import { Command } from "../main";
 import config from "../config/config.json";
 
-let beingUsed = false;
+const channelsInUse: string[] = [];
+function removeCurrentChannel(interaction: CommandInteraction<CacheType>) {
+	channelsInUse.splice(channelsInUse.indexOf(interaction.channelId), 1);
+}
+
 export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
@@ -32,13 +36,12 @@ export = {
 				.setRequired(true)),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-		if (beingUsed) {
-			await interaction.reply("Bot jest już używany przez inną osobę!");
+		if (channelsInUse.includes(interaction.channelId)) {
+			await interaction.reply("Bot jest już używany na tym kanale!");
 			return;
 		}
 
-		// Lock command when it's being used by someone else
-		beingUsed = true;
+		channelsInUse.push(interaction.channelId);
 
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
@@ -47,17 +50,17 @@ export = {
 		const exercise = interaction.options.get("zadanie")!.value as string;
 		if (!subject) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
-			beingUsed = false;
+			removeCurrentChannel(interaction);
 			return;
 		}
-		if (!Object.prototype.hasOwnProperty.call(subject, bookType!)) {
+		if (!(bookType in subject)) {
 			await interaction.reply("Nie ma takiej książki!");
-			beingUsed = false;
+			removeCurrentChannel(interaction);
 			return;
 		}
 		if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
 			await interaction.reply("Błędny numer zadania!");
-			beingUsed = false;
+			removeCurrentChannel(interaction);
 			return;
 		}
 
@@ -71,7 +74,7 @@ export = {
 		const { screenshots, error } = await scrape(subject[bookType], page, exercise);
 		if (error) {
 			await interaction.channel?.send(error!);
-			beingUsed = false;
+			removeCurrentChannel(interaction);
 			return;
 		}
 
@@ -80,8 +83,8 @@ export = {
 		if (screenshots!.length > 1)
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
-		fs.emptyDirSync("screenshots/");
-		beingUsed = false;
+		screenshots?.forEach(s => fs.rmSync(s));
+		removeCurrentChannel(interaction);
 
 		// SCRAPING
 		interface ScrapeResult {
@@ -116,7 +119,7 @@ export = {
 				});
 
 			const date = new Date();
-			console.log(`------ ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()} ------`);
+			console.log(`\n------ ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()} ------`);
 			console.log("1. started chrome");
 
 			try {
@@ -191,14 +194,16 @@ export = {
 						fs.mkdirSync("screenshots/");
 					}
 
-					const screenshotName = `screenshots/screen-${i + 1}.png`;
+					// Make sure screenshot file names are unique
+					const screenshotName = `screenshots/screen-${new Date().getTime()}.png`;
+
 					screenshotNames.push(screenshotName);
 					await webPage.screenshot({ path: screenshotName, fullPage: true });
 					console.log("12. took screenshot");
 				}
 
 				await browser.close();
-				console.log("13. browser closed\n");
+				console.log("13. browser closed");
 				return { screenshots: screenshotNames };
 			}
 			catch (err: any) {

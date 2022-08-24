@@ -1,6 +1,7 @@
 #!/bin/bash
-VERSION="1.2"
+./remove_bot.sh
 
+VERSION="1.2.1"
 docker build -t matijas05/odrabiamy-bot:$VERSION .
 docker run -d --name odrabiamy-bot \
         --env-file ./.env \
