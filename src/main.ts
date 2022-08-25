@@ -37,8 +37,12 @@ export type Command = {
 
 		try {
 			await command.execute(interaction);
-		} catch (error: any) {
-			await interaction.channel?.send({ content: "Błąd (main.ts):\n\n" + error.message });
+		} catch (err: any) {
+			let aux = err.stack.split("\n");
+			aux.splice(0, 2);	//removing the line that we force to generate the error (var err = new Error();) from the message
+			aux = aux.join("\n");
+
+			await interaction.channel?.send({ content: "Błąd (main.ts):\n\n" + err.message + "\n\n" + aux });
 		}
 	});
 

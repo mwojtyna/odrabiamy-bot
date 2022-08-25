@@ -8,11 +8,7 @@ import path from "path";
 import { Command } from "../main";
 import config from "../config/config.json";
 
-const channelsInUse: string[] = [];
-function removeCurrentChannel(interaction: CommandInteraction<CacheType>) {
-	channelsInUse.splice(channelsInUse.indexOf(interaction.channelId), 1);
-}
-
+let isBeingUsed = false;
 export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
@@ -36,12 +32,12 @@ export = {
 				.setRequired(true)),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-		if (channelsInUse.includes(interaction.channelId)) {
-			await interaction.reply("Bot jest już używany na tym kanale!");
+		if (isBeingUsed) {
+			await interaction.reply("Bot jest już używany przez inną osobę!");
 			return;
 		}
 
-		channelsInUse.push(interaction.channelId);
+		isBeingUsed = true;
 
 		// Read values from command
 		const subject = config[interaction.channelId.toString()];
@@ -50,17 +46,17 @@ export = {
 		const exercise = interaction.options.get("zadanie")!.value as string;
 		if (!subject) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
-			removeCurrentChannel(interaction);
+			isBeingUsed = false;
 			return;
 		}
 		if (!(bookType in subject)) {
 			await interaction.reply("Nie ma takiej książki!");
-			removeCurrentChannel(interaction);
+			isBeingUsed = false;
 			return;
 		}
 		if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
 			await interaction.reply("Błędny numer zadania!");
-			removeCurrentChannel(interaction);
+			isBeingUsed = false;
 			return;
 		}
 
@@ -74,7 +70,7 @@ export = {
 		const { screenshots, error } = await scrape(subject[bookType], page, exercise);
 		if (error) {
 			await interaction.channel?.send(error!);
-			removeCurrentChannel(interaction);
+			isBeingUsed = false;
 			return;
 		}
 
@@ -84,7 +80,7 @@ export = {
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
 		screenshots?.forEach(s => fs.rmSync(s));
-		removeCurrentChannel(interaction);
+		isBeingUsed = false;
 
 		// SCRAPING
 		interface ScrapeResult {
@@ -103,7 +99,6 @@ export = {
 				.launch({
 					// devtools: true,
 					// headless: false,
-					// userDataDir: path.resolve(__dirname, "../config/user_data"),	// Path has to be absolute because of https://github.com/puppeteer/puppeteer/issues/5923#issuecomment-657285335
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
@@ -112,7 +107,7 @@ export = {
 						"--disable-accelerated-2d-canvas",
 						"--no-first-run",
 						"--no-zygote",
-						// '--single-process', // <- this one doesn't works on Windows
+						"--single-process", // <- this one doesn't works on Windows
 						// "--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
@@ -120,7 +115,7 @@ export = {
 
 			const date = new Date();
 			console.log(`\n------ ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()} ------`);
-			console.log("1. started chrome");
+			console.log("1. started chrome " + await browser.version());
 
 			try {
 				// Load page
@@ -141,6 +136,7 @@ export = {
 				if (await webPage.$("#qa-rodo-accept") !== null) {
 					await webPage.click("#qa-rodo-accept");
 					console.log("4. cookies accepted");
+					await new Promise(r => setTimeout(r, 500));
 				}
 
 				console.log("5. url: " + webPage.url());
@@ -208,7 +204,12 @@ export = {
 			}
 			catch (err: any) {
 				await browser.close();
-				return { error: "Błąd (zad.ts):\n\n" + err.message };
+
+				let aux = err.stack.split("\n");
+				aux.splice(0, 2); //removing the line that we force to generate the error (var err = new Error();) from the message
+				aux = aux.join("\n");
+
+				return { error: "Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux };
 			}
 		}
 	}
