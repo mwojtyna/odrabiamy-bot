@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
+import { ElementHandle, Page } from "puppeteer";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
@@ -74,18 +75,29 @@ export = {
 			return;
 		}
 
-		// Final response
 		await interaction.channel?.send({ files: screenshots });
 		if (screenshots!.length > 1)
 			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
-		screenshots?.forEach(s => fs.rmSync(s));
+		fs.emptyDirSync(path.resolve(__dirname, "../../screenshots"));
 		isBeingUsed = false;
+
+		const date = new Date();
+		console.log(`Completed at: ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()}`);
 
 		// SCRAPING
 		interface ScrapeResult {
 			screenshots?: string[];
 			error?: string;
+		}
+		async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
+			// Sometimes built-in click() method doesn't work
+			// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
+			if (!element)
+				return;
+
+			await element.focus();
+			await webPage.keyboard.type("\n");
 		}
 		async function scrape(bookUrl: string, page: number, exercise: string): Promise<ScrapeResult> {
 			// Setup browser
@@ -98,7 +110,9 @@ export = {
 				.use(stealthPlugin())
 				.launch({
 					// devtools: true,
+					// slowMo: 100,
 					// headless: false,
+					executablePath: process.platform === "linux" ? "/usr/bin/chromium" : undefined,
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
@@ -107,7 +121,7 @@ export = {
 						"--disable-accelerated-2d-canvas",
 						"--no-first-run",
 						"--no-zygote",
-						"--single-process", // <- this one doesn't works on Windows
+						process.platform === "linux" ? "--single-process" : "", // <- this one doesn't works on Windows
 						// "--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
@@ -120,27 +134,26 @@ export = {
 			try {
 				// Load page
 				const [webPage] = await browser.pages();
-				await webPage.goto(website);
-				console.log("2. website loaded");
 
 				// Load cookies
 				if (fs.existsSync(cookiesPath)) {
 					const cookiesString = await fs.readFile(cookiesPath, { encoding: "utf-8" });
 					const cookies = JSON.parse(cookiesString);
 					await webPage.setCookie(...cookies);
-					await webPage.reload();
-					console.log("3. cookies loaded: " + cookiesPath);
+					console.log("2. cookies loaded: " + cookiesPath);
 				}
+				await webPage.goto(website);
+				console.log("3. website loaded");
 
 				// Allow cookies
-				if (await webPage.$("#qa-rodo-accept") !== null) {
-					await webPage.click("#qa-rodo-accept");
-					console.log("4. cookies accepted");
-					await new Promise(r => setTimeout(r, 500));
-				}
+				const cookiesAcceptID = "#qa-rodo-accept";
+				const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID);
+				await hardClick(cookiesAccept, webPage);
+				await webPage.waitForSelector(cookiesAcceptID, { hidden: true });
+				console.log("4. cookies accepted");
 
-				console.log("5. url: " + webPage.url());
 				// Login if not logged in or cookies expired
+				console.log("5. url: " + webPage.url());
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
@@ -157,8 +170,10 @@ export = {
 					console.log("7. cookies set");
 				}
 
-				// Go to correct page
-				await webPage.goto(website + bookUrl + `strona-${page}`, { waitUntil: "domcontentloaded" });
+				// Go to correct page and close any pop-ups
+				await webPage.goto(website + bookUrl + `strona-${page}`);
+				const popupClose = await webPage.waitForSelector("[data-testid='close-button']",);
+				await hardClick(popupClose, webPage);
 				console.log("8. changed page");
 
 				// Parse exercise number
@@ -171,7 +186,7 @@ export = {
 				exerciseCleaned = exerciseCleaned.replaceAll(".", "\\.");
 
 				// Select exercise and take screenshots
-				const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned}`);
+				const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned} > a`);
 				if (exerciseBtns.length === 0) {
 					await browser.close();
 					return { error: "Nie znaleziono zadania o podanym numerze." };
@@ -180,19 +195,19 @@ export = {
 
 				const screenshotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
-					await exerciseBtns[i].click();
+					await hardClick(exerciseBtns[i], webPage);
 					console.log("10. clicked exercise button " + i);
-					await webPage.waitForNavigation({ waitUntil: "domcontentloaded" });
-					await new Promise(r => setTimeout(r, 1000));
+
+					await webPage.waitForFunction((exerciseCleaned, i) =>
+						document.querySelectorAll(`#qa-exercise-no-${exerciseCleaned}`)[i].classList.contains("qa-exercise-selected"),
+					{}, exerciseCleaned, i);
 					console.log("11. exercise loaded");
 
 					if (!fs.existsSync("screenshots/")) {
 						fs.mkdirSync("screenshots/");
 					}
 
-					// Make sure screenshot file names are unique
-					const screenshotName = `screenshots/screen-${new Date().getTime()}.png`;
-
+					const screenshotName = `screenshots/screen-${i}.png`;
 					screenshotNames.push(screenshotName);
 					await webPage.screenshot({ path: screenshotName, fullPage: true });
 					console.log("12. took screenshot");
@@ -206,7 +221,7 @@ export = {
 				await browser.close();
 
 				let aux = err.stack.split("\n");
-				aux.splice(0, 2); //removing the line that we force to generate the error (var err = new Error();) from the message
+				aux.splice(0, 2);	// removing the line that we force to generate the error (var err = new Error();) from the message
 				aux = aux.join("\n");
 
 				return { error: "Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux };

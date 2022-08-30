@@ -8,20 +8,23 @@ From version 1.3 up, the docker image is only for arm64v8 platform!
 ```bash
 docker run -d \
 	--name odrabiamy-bot \
+	--restart unless-stopped \
 	-e TOKEN="<token>" \
 	-e APP_ID="<app_id>" \
 	-e GUILD_ID="<guild_id>" \
 	-e EMAIL="<email>" \
 	-e PASSWORD="<password>" \
-	-v "config:/app/src/config" \
-	matijas05/odrabiamy-bot:1.3
+	-v "/srv/odrabiamy-bot:/app/src/config" \
+	matijas05/odrabiamy-bot:1.4
 ```
 OR
 ```bash
-docker run -d --name odrabiamy-bot \
+docker run -d \
+	--name odrabiamy-bot \
+	--restart unless-stopped \
 	--env-file <.env_file_path> \
-	-v "config:/app/src/config" \
-	matijas05/odrabiamy-bot:1.3
+	-v "/srv/odrabiamy-bot:/app/src/config" \
+	matijas05/odrabiamy-bot:1.4
 ```
 where env-file is a text file containing environment variables separated by a <ins>**new line**</ins> and with <ins>**no quotes**</ins>.
 
