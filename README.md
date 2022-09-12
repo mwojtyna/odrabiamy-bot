@@ -47,4 +47,4 @@ where env-file is a text file containing environment variables separated by a **
 "config" volume contains:
 
 - `config.json` - file that decides which channels are for which books,
-- `cookies.json` - sometimes Captcha gets in the way when logging in, so if the bot gives a timeout error, copy this file from a local instance of the bot.
+- `cookies.json` - prevents having to log in each time a command is executed.
