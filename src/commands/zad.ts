@@ -176,8 +176,8 @@ export = {
 
 				// Go to correct page and close any pop-ups
 				await webPage.goto(website + bookUrl + `strona-${page}`);
-				const popupClose = await webPage.waitForSelector("[data-testid='close-button']",);
-				await hardClick(popupClose, webPage);
+				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']",);
+				await hardClick(popupCloseElement, webPage);
 				console.log("8. changed page");
 
 				// Parse exercise number
@@ -221,7 +221,9 @@ export = {
 
 					const screenshotName = `screenshots/screen-${i}.png`;
 					screenshotNames.push(screenshotName);
-					await webPage.screenshot({ path: screenshotName, fullPage: true });
+
+					const solutionElement = (await webPage.$("#qa-exercise"))!;
+					await solutionElement.screenshot({ path: screenshotName });
 					console.log("12. took screenshot");
 				}
 
