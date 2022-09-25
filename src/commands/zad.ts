@@ -78,17 +78,17 @@ export = {
 		if (error) {
 			await interaction.channel?.send(error!);
 			isBeingUsed = false;
-			return;
 		}
+		else {
+			await interaction.channel?.send({ files: screenshots });
+			if (screenshots!.length > 1)
+				await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
 
-		await interaction.channel?.send({ files: screenshots });
-		if (screenshots!.length > 1)
-			await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
+			fs.emptyDirSync(path.resolve(__dirname, "../../screenshots"));
+			isBeingUsed = false;
 
-		fs.emptyDirSync(path.resolve(__dirname, "../../screenshots"));
-		isBeingUsed = false;
-
-		console.log(`Completed at: ${getCurrentTime()}`);
+			console.log(`Completed at: ${getCurrentTime()}`);
+		}
 
 		// SCRAPING
 		interface ScrapeResult {
@@ -141,7 +141,7 @@ export = {
 
 				// Load cookies
 				if (fs.existsSync(cookiesPath)) {
-					const cookiesString = await fs.readFile(cookiesPath, { encoding: "utf-8" });
+					const cookiesString = fs.readFileSync(cookiesPath, { encoding: "utf-8" });
 					const cookies = JSON.parse(cookiesString);
 					await webPage.setCookie(...cookies);
 					console.log("2. cookies loaded: " + cookiesPath);

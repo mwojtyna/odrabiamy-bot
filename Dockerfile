@@ -2,9 +2,9 @@
 FROM arm64v8/node:16.17.0-bullseye-slim
 WORKDIR /app
 
-# Install chromium dependencies
+# Install dependencies
 RUN apt-get update
-RUN apt-get install -y chromium
+RUN apt-get install -y chromium curl
 
 # Install packages
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -15,5 +15,9 @@ RUN npm i
 COPY tsconfig.json .
 COPY /src ./src
 
+# Check express.js endpoint
+HEALTHCHECK --interval=3s --timeout=30s --start-period=10s --retries=5 \
+	CMD curl --fail http://localhost:3000
+
 # Run npm start
-CMD [ "npm", "start" ]
+CMD ["npm", "start"]

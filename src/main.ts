@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import path from "path";
 import dotenv from "dotenv";
 import clc from "cli-color";
+import express from "express";
 
 export type Command = {
 	data: SlashCommandBuilder,
@@ -15,7 +16,15 @@ export type Command = {
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
-	client.once("ready", () => console.log(clc.green("ready")));
+	client.once("ready", () => {
+		// Setup healthcheck endpoint
+		const app = express();
+		app.listen(3000, () => console.log(clc.green("ready")));
+
+		app.get("/", (_, res) => {
+			res.sendStatus(200);
+		});
+	});
 
 	// Retrieve commands
 	const commands = new Collection<string, Command>();
