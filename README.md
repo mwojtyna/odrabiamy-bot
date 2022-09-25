@@ -1,4 +1,4 @@
-# odrabiamy-bot v1.4.1
+# odrabiamy-bot v1.4.2
 
 Discord bot for retrieving data from <https://odrabiamy.pl/>
 
@@ -17,8 +17,8 @@ docker run -d \
  -e GUILD_ID="<guild_id>" \
  -e EMAIL="<email>" \
  -e PASSWORD="<password>" \
- -v "/srv/odrabiamy-bot:/app/src/config" \
- matijas05/odrabiamy-bot:1.4.1
+ -v "/srv/odrabiamy-bot/config:/app/src/config" \
+ matijas05/odrabiamy-bot:1.4.2
 ```
 
 OR
@@ -28,8 +28,27 @@ docker run -d \
  --name odrabiamy-bot \
  --restart unless-stopped \
  --env-file <.env_file_path> \
- -v "/srv/odrabiamy-bot:/app/src/config" \
- matijas05/odrabiamy-bot:1.4.1
+ -v "/srv/odrabiamy-bot/config:/app/src/config" \
+ matijas05/odrabiamy-bot:1.4.2
+```
+
+OR (using docker compose)
+
+```yaml
+version: '2.1'
+services:
+  odrabiamy-bot:
+    container_name: odrabiamy-bot
+    image: matijas05/odrabiamy-bot:1.4.2
+    restart: always
+    volumes:
+      - /srv/odrabiamy-bot/config:/app/src/config
+    env_file:
+      - <.env_file_path>
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
 ```
 
 where env-file is a text file containing environment variables separated by a **new line** and with **no quotes**.

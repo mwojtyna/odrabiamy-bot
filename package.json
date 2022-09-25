@@ -1,6 +1,6 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
@@ -37,7 +37,7 @@
 		"discord.js": "^14.5.0",
 		"dotenv": "^16.0.2",
 		"fs-extra": "^10.1.0",
-		"puppeteer": "15.4.2",
+		"puppeteer": "16.1.1",
 		"puppeteer-extra": "^3.3.4",
 		"puppeteer-extra-plugin-stealth": "^2.11.1"
 	}

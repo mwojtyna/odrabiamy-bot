@@ -10,6 +10,11 @@ import { Command } from "../main";
 import config from "../config/config.json";
 
 let isBeingUsed = false;
+const getCurrentTime = () => {
+	const date = new Date();
+	return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+};
+
 export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
@@ -83,8 +88,7 @@ export = {
 		fs.emptyDirSync(path.resolve(__dirname, "../../screenshots"));
 		isBeingUsed = false;
 
-		const date = new Date();
-		console.log(`Completed at: ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()}`);
+		console.log(`Completed at: ${getCurrentTime()}`);
 
 		// SCRAPING
 		interface ScrapeResult {
@@ -128,8 +132,7 @@ export = {
 					defaultViewport: { width: width, height: height }
 				});
 
-			const date = new Date();
-			console.log(`\n------ ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDay()}.${date.getMonth()}.${date.getFullYear()} ------`);
+			console.log(`\n------ ${getCurrentTime()}  ------`);
 			console.log("1. started chrome " + await browser.version());
 
 			try {
@@ -199,9 +202,17 @@ export = {
 					await hardClick(exerciseBtns[i], webPage);
 					console.log("10. clicked exercise button " + i);
 
-					await webPage.waitForFunction((exerciseCleaned, i) =>
-						document.querySelectorAll(`#qa-exercise-no-${exerciseCleaned}`)[i].classList.contains("qa-exercise-selected"), {}, exerciseCleaned, i);
-					await webPage.waitForNavigation({ waitUntil: "networkidle0" });
+					// Wait for exercise to load
+					// First time site is loaded, it posts these two requests
+					if (i === 0) {
+						await webPage.waitForResponse(response => response.url().includes("visits"));
+						console.log("11.a vists response");
+						await webPage.waitForResponse(response => response.url().includes("exercises"));
+						console.log("11.b exercises response");
+					}
+					// Then when every new exercise is loaded it only posts this request
+					await webPage.waitForResponse(response => response.url().includes("visits"));
+					console.log("11.c 2nd vists response");
 					console.log("11. exercise loaded");
 
 					if (!fs.existsSync("screenshots/")) {
