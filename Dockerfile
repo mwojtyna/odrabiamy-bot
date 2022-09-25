@@ -11,8 +11,9 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 COPY package*.json .
 RUN npm i
 
-# Copy all files to container (except files in .dockerignore)
-COPY . .
+# Copy required files to /app
+COPY tsconfig.json .
+COPY /src ./src
 
 # Run npm start
 CMD [ "npm", "start" ]

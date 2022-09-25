@@ -1,12 +1,12 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
-		"start": "ts-node --files src/main.ts",
+		"start": "ts-node src/main.ts",
 		"dev": "ts-node-dev --files --respawn src/main.ts",
-		"build": "ts-node --files src/commands-deploy.ts ",
+		"build": "ts-node src/commands-deploy.ts ",
 		"logout": "rm src/config/cookies.json"
 	},
 	"repository": {
@@ -24,18 +24,18 @@
 		"@types/cli-color": "^2.0.2",
 		"@types/fs-extra": "^9.0.13",
 		"@types/puppeteer": "^5.4.6",
-		"@typescript-eslint/eslint-plugin": "^5.34.0",
-		"@typescript-eslint/parser": "^5.34.0",
+		"@typescript-eslint/eslint-plugin": "^5.38.0",
+		"@typescript-eslint/parser": "^5.38.0",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.2.0",
-		"@discordjs/rest": "^1.1.0",
+		"@discordjs/rest": "^1.2.0",
 		"cli-color": "^2.0.3",
-		"discord-api-types": "^0.37.4",
-		"discord.js": "^14.3.0",
-		"dotenv": "^16.0.1",
+		"discord-api-types": "^0.37.10",
+		"discord.js": "^14.5.0",
+		"dotenv": "^16.0.2",
 		"fs-extra": "^10.1.0",
 		"puppeteer": "15.4.2",
 		"puppeteer-extra": "^3.3.4",

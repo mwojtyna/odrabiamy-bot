@@ -1,4 +1,4 @@
-# odrabiamy-bot
+# odrabiamy-bot v1.4.1
 
 Discord bot for retrieving data from <https://odrabiamy.pl/>
 
@@ -18,7 +18,7 @@ docker run -d \
  -e EMAIL="<email>" \
  -e PASSWORD="<password>" \
  -v "/srv/odrabiamy-bot:/app/src/config" \
- matijas05/odrabiamy-bot:1.4
+ matijas05/odrabiamy-bot:1.4.1
 ```
 
 OR
@@ -29,7 +29,7 @@ docker run -d \
  --restart unless-stopped \
  --env-file <.env_file_path> \
  -v "/srv/odrabiamy-bot:/app/src/config" \
- matijas05/odrabiamy-bot:1.4
+ matijas05/odrabiamy-bot:1.4.1
 ```
 
 where env-file is a text file containing environment variables separated by a **new line** and with **no quotes**.

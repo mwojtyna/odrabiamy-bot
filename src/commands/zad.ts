@@ -41,6 +41,7 @@ export = {
 		isBeingUsed = true;
 
 		// Read values from command
+		// @ts-ignore
 		const subject = config[interaction.channelId.toString()];
 		const bookType = interaction.options.get("rodzaj_książki")!.value as string;
 		const page = interaction.options.get("strona")!.value as number;
@@ -199,8 +200,8 @@ export = {
 					console.log("10. clicked exercise button " + i);
 
 					await webPage.waitForFunction((exerciseCleaned, i) =>
-						document.querySelectorAll(`#qa-exercise-no-${exerciseCleaned}`)[i].classList.contains("qa-exercise-selected"),
-					{}, exerciseCleaned, i);
+						document.querySelectorAll(`#qa-exercise-no-${exerciseCleaned}`)[i].classList.contains("qa-exercise-selected"), {}, exerciseCleaned, i);
+					await webPage.waitForNavigation({ waitUntil: "networkidle0" });
 					console.log("11. exercise loaded");
 
 					if (!fs.existsSync("screenshots/")) {
