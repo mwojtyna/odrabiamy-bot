@@ -9,6 +9,11 @@ import path from "path";
 import { Command } from "../main";
 import config from "../config/config.json";
 
+interface BookJSON {
+	url: string;
+	trailingDot?: boolean;
+}
+
 let isBeingUsed = false;
 const getCurrentTime = () => {
 	const date = new Date();
@@ -19,14 +24,6 @@ export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
 		.setDescription("Odpowiada na kanałach 'komendy' z screenem zadania.")
-		.addStringOption(option =>
-			option.setName("rodzaj_książki")
-				.setDescription("Wybierz rodzaj książki")
-				.setRequired(true)
-				.addChoices(
-					{ name: "podręcznik", value: "pdr" },
-					{ name: "ćwiczenia/zbiór zadań", value: "cw" }
-				))
 		.addIntegerOption(option =>
 			option.setName("strona")
 				.setDescription("Wpisz numer strony")
@@ -46,18 +43,12 @@ export = {
 		isBeingUsed = true;
 
 		// Read values from command
-		// @ts-ignore
-		const subject = config[interaction.channelId.toString()];
-		const bookType = interaction.options.get("rodzaj_książki")!.value as string;
+		const book = config[interaction.channelId as keyof typeof config] as BookJSON;
 		const page = interaction.options.get("strona")!.value as number;
 		const exercise = interaction.options.get("zadanie")!.value as string;
-		if (!subject) {
+
+		if (!book) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
-			isBeingUsed = false;
-			return;
-		}
-		if (!(bookType in subject)) {
-			await interaction.reply("Nie ma takiej książki!");
 			isBeingUsed = false;
 			return;
 		}
@@ -69,12 +60,12 @@ export = {
 
 		// Respond and animate message
 		await interaction.reply("Ściąganie odpowiedzi");
-		for (let i = 0; i < 18; i++) {
+		for (let i = 0; i < 30; i++) {
 			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
 		}
 
 		// Scrape and display
-		const { screenshots, error } = await scrape(subject[bookType], page, exercise);
+		const { screenshots, error } = await scrape(book.url, page, exercise);
 		if (error) {
 			await interaction.channel?.send(error!);
 			isBeingUsed = false;
@@ -182,9 +173,9 @@ export = {
 
 				// Parse exercise number
 				let exerciseCleaned = exercise;
-				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !subject["trailingDot"])
+				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !book.trailingDot)
 					exerciseCleaned = exerciseCleaned.slice(0, -1);
-				else if (exerciseCleaned.charAt(exerciseCleaned.length - 1) !== "." && subject["trailingDot"])
+				else if (exerciseCleaned.charAt(exerciseCleaned.length - 1) !== "." && book.trailingDot)
 					exerciseCleaned += ".";
 
 				exerciseCleaned = exerciseCleaned.replaceAll(".", "\\.");

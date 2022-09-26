@@ -1,45 +1,58 @@
 {
-	"//": "'komendy' channel for debug purposes",
+	"//": "'debug' channel",
 	"948177659127529512": {
-		"pdr": "matematyka/ksiazka-13007/",
-		"cw": "matematyka/ksiazka-13128/"
+		"url": "matematyka/ksiazka-13128/"
 	},
 	"948175719031267330": {
-		"pdr": "jezyk-polski/ksiazka-12533/"
+		"url": "jezyk-polski/ksiazka-12533/"
 	},
 	"948179420743618580": {
-		"pdr": "matematyka/ksiazka-13007/",
-		"cw": "matematyka/ksiazka-13128/"
+		"url": "matematyka/ksiazka-13007/"
+	},
+	"948179540960759828": {
+		"url": "matematyka/ksiazka-13128/"
 	},
 	"948177957048963102": {
-		"pdr": "jezyk-niemiecki/ksiazka-11861/",
-		"cw": "jezyk-niemiecki/ksiazka-11862/"
+		"url": "jezyk-niemiecki/ksiazka-11861/"
+	},
+	"948178049919246386": {
+		"url": "jezyk-niemiecki/ksiazka-11862/"
 	},
 	"948179571293954078": {
-		"pdr": "jezyk-niemiecki/ksiazka-13066/",
-		"cw": "jezyk-niemiecki/ksiazka-13067/"
+		"url": "jezyk-niemiecki/ksiazka-13066/"
+	},
+	"948179636263727144": {
+		"url": "jezyk-niemiecki/ksiazka-13067/"
 	},
 	"948179690458337320": {
-		"pdr": "jezyk-angielski/ksiazka-12671/",
-		"cw": "jezyk-angielski/ksiazka-12672/"
+		"url": "jezyk-angielski/ksiazka-12671/"
+	},
+	"948179750592077834": {
+		"url": "jezyk-angielski/ksiazka-12672/"
 	},
 	"948179828652273714": {
-		"pdr": "jezyk-angielski/ksiazka-12035/",
-		"cw": "jezyk-angielski/ksiazka-11931/"
+		"url": "jezyk-angielski/ksiazka-12035/"
+	},
+	"948179889486434305": {
+		"url": "jezyk-angielski/ksiazka-11931/"
 	},
 	"948179940908621834": {
-		"pdr": "biologia/ksiazka-12997/"
+		"url": "biologia/ksiazka-12997/"
 	},
 	"948180174707523644": {
-		"pdr": "chemia/ksiazka-12806/"
+		"url": "chemia/ksiazka-12806/"
 	},
 	"948180229740969994": {
-		"pdr": "geografia/ksiazka-13008/",
-		"cw": "geografia/ksiazka-13105/"
+		"url": "geografia/ksiazka-13008/"
+	},
+	"948180275593093120": {
+		"url": "geografia/ksiazka-13105/"
 	},
 	"948180309550182400": {
-		"pdr": "fizyka/ksiazka-13096/",
-		"cw": "fizyka/ksiazka-12009/",
+		"url": "fizyka/ksiazka-13096/"
+	},
+	"948180358837465129": {
+		"url": "fizyka/ksiazka-12009/",
 		"trailingDot": true
 	}
 }
