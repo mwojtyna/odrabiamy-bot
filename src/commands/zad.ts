@@ -126,8 +126,8 @@ export = {
 						"--disable-accelerated-2d-canvas",
 						"--no-first-run",
 						"--no-zygote",
-						process.platform === "linux" ? "--single-process" : "", // <- this one doesn't works on Windows
-						// "--disable-gpu"
+						process.platform === "linux" ? "--single-process" : "", // this one doesn't works on Windows
+						"--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
 				});
