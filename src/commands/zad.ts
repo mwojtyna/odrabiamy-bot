@@ -23,7 +23,7 @@ const getCurrentTime = () => {
 export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
-		.setDescription("Odpowiada na kanałach 'komendy' z screenem zadania.")
+		.setDescription("Odpowiada ze screenem zadania.")
 		.addIntegerOption(option =>
 			option.setName("strona")
 				.setDescription("Wpisz numer strony")
@@ -118,7 +118,7 @@ export = {
 						"--no-first-run",
 						"--no-zygote",
 						process.platform === "linux" ? "--single-process" : "", // this one doesn't works on Windows
-						"--disable-gpu"
+						// "--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
 				});
