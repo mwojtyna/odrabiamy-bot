@@ -46,7 +46,8 @@ export = {
 		const book = config[interaction.channelId as keyof typeof config] as BookJSON;
 		const page = interaction.options.get("strona")!.value as number;
 		const exercise = interaction.options.get("zadanie")!.value as string;
-
+		
+		// Check user input
 		if (!book) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
 			isBeingUsed = false;
@@ -58,6 +59,15 @@ export = {
 			return;
 		}
 
+		// Parse exercise number
+		let exerciseParsed = exercise;
+		if (exerciseParsed.charAt(exerciseParsed.length - 1) === "." && !book.trailingDot)
+			exerciseParsed = exerciseParsed.slice(0, -1);
+		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && book.trailingDot)
+			exerciseParsed += ".";
+
+		exerciseParsed = exerciseParsed.replaceAll(".", "\\.");
+
 		// Respond and animate message
 		await interaction.reply("Ściąganie odpowiedzi");
 		for (let i = 0; i < 30; i++) {
@@ -65,7 +75,7 @@ export = {
 		}
 
 		// Scrape and display
-		const { screenshots, error } = await scrape(book.url, page, exercise);
+		const { screenshots, error } = await scrape(book.url, page, exerciseParsed);
 		if (error) {
 			await interaction.channel?.send(error!);
 			isBeingUsed = false;
@@ -146,8 +156,15 @@ export = {
 				await webPage.waitForSelector(cookiesAcceptID, { hidden: true });
 				console.log("4. cookies accepted");
 
+				// Close any pop-ups
+				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']");
+				if (popupCloseElement) {
+					await hardClick(popupCloseElement, webPage);
+					console.log("5. popup closed");
+				}
+
 				// Login if not logged in or cookies expired
-				console.log("5. url: " + webPage.url());
+				console.log("6. url: " + webPage.url());
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
@@ -155,55 +172,42 @@ export = {
 					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
+
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
-					console.log("6. logged in");
+					console.log("7. logged in");
 
 					// Set cookies after login
 					const cookies = await webPage.cookies();
 					fs.writeFile(path.resolve(__dirname, "../config/cookies.json"), JSON.stringify(cookies, null, 2));
-					console.log("7. cookies set");
+					console.log("8. cookies set");
 				}
 
-				// Go to correct page and close any pop-ups
+				// Go to correct page
 				await webPage.goto(website + bookUrl + `strona-${page}`);
-				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']");
-				await hardClick(popupCloseElement, webPage);
-				console.log("8. changed page: " + webPage.url());
+				console.log("9. changed page: " + webPage.url());
 
-				// Wait for exercise to load
+				// Wait for exercises to load
 				await webPage.waitForResponse(response => response.url().includes("visits"));
-				console.log("9.a visits response");
+				console.log("10.a visits response");
 				await webPage.waitForResponse(response => response.url().includes("exercises"));
-				console.log("9.b exercises response");
+				console.log("10.b exercises response");
 				await webPage.waitForResponse(response => response.url().includes("visits"));
-				console.log("9.c visits response");
-
-				// Parse exercise number
-				let exerciseCleaned = exercise;
-				if (exerciseCleaned.charAt(exerciseCleaned.length - 1) === "." && !book.trailingDot)
-					exerciseCleaned = exerciseCleaned.slice(0, -1);
-				else if (exerciseCleaned.charAt(exerciseCleaned.length - 1) !== "." && book.trailingDot)
-					exerciseCleaned += ".";
-
-				exerciseCleaned = exerciseCleaned.replaceAll(".", "\\.");
+				console.log("10.c visits response");
 
 				// Select exercise and take screenshots
-				const exerciseSelector = `#qa-exercise-no-${exerciseCleaned} > a`;
+				const exerciseSelector = `#qa-exercise-no-${exercise} > a`;
 				const exerciseBtns = await webPage.$$(exerciseSelector);
-				console.log("9. found exercise buttons");
+				console.log("10. found exercise buttons");
 
 				const screenshotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
-					// Select exercise only when it's not selected by default
-					if (i > 0) {
-						await hardClick(exerciseBtns[i], webPage);
-						console.log("10. clicked exercise button " + i);
+					// Only this click works
+					await webPage.$$eval(exerciseSelector, (elements, i) => (elements[i] as HTMLElement).click(), i);
+					console.log("11. clicked exercise button " + i);
 
-						// Wait for exercise to load
-						await webPage.waitForResponse(response => response.url().includes("visits"));
-						console.log("11.a visits response");
-					}
-					console.log("11. exercise loaded");
+					// Wait for the solution to load
+					await webPage.waitForResponse(response => response.url().includes("visits"));
+					console.log("12. exercise loaded");
 
 					if (!fs.existsSync("screenshots/")) {
 						fs.mkdirSync("screenshots/");
@@ -214,11 +218,11 @@ export = {
 
 					const solutionElement = (await webPage.$("#qa-exercise"))!;
 					await solutionElement.screenshot({ path: screenshotName });
-					console.log("12. took screenshot");
+					console.log("13. took screenshot");
 				}
 
 				await browser.close();
-				console.log("13. browser closed");
+				console.log("14. browser closed");
 				return { screenshots: screenshotNames };
 			}
 			catch (err: any) {
