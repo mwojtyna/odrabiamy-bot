@@ -107,17 +107,16 @@ export = {
 				.launch({
 					// devtools: true,
 					// slowMo: 100,
-					// headless: false,
-					executablePath: process.platform === "linux" ? "/usr/bin/chromium" : undefined,
+					headless: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD !== undefined,
 					args: [
 						`--window-size=${width},${height}`,
 						"--no-sandbox",
-						"--disable-setuid-sandbox",
-						"--disable-dev-shm-usage",
-						"--disable-accelerated-2d-canvas",
-						"--no-first-run",
-						"--no-zygote",
-						process.platform === "linux" ? "--single-process" : "", // this one doesn't works on Windows
+						// "--disable-setuid-sandbox",
+						// "--disable-dev-shm-usage",
+						// "--disable-accelerated-2d-canvas",
+						// "--no-first-run",
+						// "--no-zygote",
+						process.platform === "linux" && process.arch === "arm64" ? "--single-process" : "", // this one doesn't works on Windows
 						// "--disable-gpu"
 					],
 					defaultViewport: { width: width, height: height }
@@ -167,9 +166,17 @@ export = {
 
 				// Go to correct page and close any pop-ups
 				await webPage.goto(website + bookUrl + `strona-${page}`);
-				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']",);
+				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']");
 				await hardClick(popupCloseElement, webPage);
-				console.log("8. changed page");
+				console.log("8. changed page: " + webPage.url());
+
+				// Wait for exercise to load
+				await webPage.waitForResponse(response => response.url().includes("visits"));
+				console.log("9.a visits response");
+				await webPage.waitForResponse(response => response.url().includes("exercises"));
+				console.log("9.b exercises response");
+				await webPage.waitForResponse(response => response.url().includes("visits"));
+				console.log("9.c visits response");
 
 				// Parse exercise number
 				let exerciseCleaned = exercise;
@@ -181,29 +188,21 @@ export = {
 				exerciseCleaned = exerciseCleaned.replaceAll(".", "\\.");
 
 				// Select exercise and take screenshots
-				const exerciseBtns = await webPage.$$(`#qa-exercise-no-${exerciseCleaned} > a`);
-				if (exerciseBtns.length === 0) {
-					await browser.close();
-					return { error: "Nie znaleziono zadania o podanym numerze." };
-				}
+				const exerciseSelector = `#qa-exercise-no-${exerciseCleaned} > a`;
+				const exerciseBtns = await webPage.$$(exerciseSelector);
 				console.log("9. found exercise buttons");
 
 				const screenshotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
-					await hardClick(exerciseBtns[i], webPage);
-					console.log("10. clicked exercise button " + i);
+					// Select exercise only when it's not selected by default
+					if (i > 0) {
+						await hardClick(exerciseBtns[i], webPage);
+						console.log("10. clicked exercise button " + i);
 
-					// Wait for exercise to load
-					// First time site is loaded, it posts these two requests
-					if (i === 0) {
+						// Wait for exercise to load
 						await webPage.waitForResponse(response => response.url().includes("visits"));
-						console.log("11.a vists response");
-						await webPage.waitForResponse(response => response.url().includes("exercises"));
-						console.log("11.b exercises response");
+						console.log("11.a visits response");
 					}
-					// Then when every new exercise is loaded it only posts this request
-					await webPage.waitForResponse(response => response.url().includes("visits"));
-					console.log("11.c 2nd vists response");
 					console.log("11. exercise loaded");
 
 					if (!fs.existsSync("screenshots/")) {
