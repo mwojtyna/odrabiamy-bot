@@ -1,6 +1,6 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.5.3",
+	"version": "1.5.4",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
@@ -8,7 +8,7 @@
 		"dev": "ts-node-dev --files --respawn src/main.ts",
 		"build": "ts-node src/commands-deploy.ts ",
 		"logout": "rm src/config/cookies.json",
-		"preinstall": "sw_vers -productVersion && export PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM=true"
+		"preinstall": "(sw_vers || echo PUPPETEER_SKIP_CHROMIUM_DOWNLOAD) && export PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM=true"
 	},
 	"repository": {
 		"type": "git",
@@ -40,7 +40,7 @@
 		"dotenv": "^16.0.2",
 		"express": "^4.18.1",
 		"fs-extra": "^10.1.0",
-		"puppeteer": "16.1.1",
+		"puppeteer": "18.0.5",
 		"puppeteer-extra": "^3.3.4",
 		"puppeteer-extra-plugin-stealth": "^2.11.1"
 	}
