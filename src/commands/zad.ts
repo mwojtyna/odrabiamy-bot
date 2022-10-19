@@ -155,16 +155,9 @@ export = {
 				await hardClick(cookiesAccept, webPage);
 				await webPage.waitForSelector(cookiesAcceptID, { hidden: true });
 				console.log("4. cookies accepted");
-
-				// Close any pop-ups
-				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']");
-				if (popupCloseElement) {
-					await hardClick(popupCloseElement, webPage);
-					console.log("5. popup closed");
-				}
-
+				
 				// Login if not logged in or cookies expired
-				console.log("6. url: " + webPage.url());
+				console.log("5. url: " + webPage.url());
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
 					await webPage.click("[data-testid='login-button']");
 					await webPage.waitForNavigation();
@@ -172,16 +165,23 @@ export = {
 					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
-
+					
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
-					console.log("7. logged in");
-
+					console.log("6. logged in");
+					
 					// Set cookies after login
 					const cookies = await webPage.cookies();
 					fs.writeFile(path.resolve(__dirname, "../config/cookies.json"), JSON.stringify(cookies, null, 2));
-					console.log("8. cookies set");
+					console.log("7. cookies set");
 				}
 
+				// Close any pop-ups
+				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']");
+				if (popupCloseElement) {
+					await hardClick(popupCloseElement, webPage);
+					console.log("8. popup closed");
+				}
+				
 				// Go to correct page
 				await webPage.goto(website + bookUrl + `strona-${page}`);
 				console.log("9. changed page: " + webPage.url());
