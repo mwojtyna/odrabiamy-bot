@@ -9,5 +9,5 @@ export = {
 
 	async execute(interaction: CommandInteraction<CacheType>) {
 		await interaction.reply("pong");
-	},
+	}
 } as Command;

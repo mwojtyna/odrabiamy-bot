@@ -17,7 +17,10 @@ interface BookJSON {
 let isBeingUsed = false;
 const getCurrentTime = () => {
 	const date = new Date();
-	return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+	return (
+		`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
+		`.${date.getMonth() + 1}.${date.getFullYear()}`
+	);
 };
 
 export = {
@@ -25,14 +28,15 @@ export = {
 		.setName("zad")
 		.setDescription("Odpowiada ze screenem zadania.")
 		.addIntegerOption(option =>
-			option.setName("strona")
+			option
+				.setName("strona")
 				.setDescription("Wpisz numer strony")
 				.setRequired(true)
-				.setMinValue(1))
+				.setMinValue(1)
+		)
 		.addStringOption(option =>
-			option.setName("zadanie")
-				.setDescription("Wpisz numer zadania")
-				.setRequired(true)),
+			option.setName("zadanie").setDescription("Wpisz numer zadania").setRequired(true)
+		),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
 		if (isBeingUsed) {
@@ -46,7 +50,7 @@ export = {
 		const book = config[interaction.channelId as keyof typeof config] as BookJSON;
 		const page = interaction.options.get("strona")!.value as number;
 		const exercise = interaction.options.get("zadanie")!.value as string;
-		
+
 		// Check user input
 		if (!book) {
 			await interaction.reply("Komenda nie jest dostępna w tym kanale!");
@@ -71,7 +75,7 @@ export = {
 		// Respond and animate message
 		await interaction.reply("Ściąganie odpowiedzi");
 		for (let i = 0; i < 30; i++) {
-			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat(i % 3 + 1));
+			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat((i % 3) + 1));
 		}
 
 		// Scrape and display
@@ -79,11 +83,12 @@ export = {
 		if (error) {
 			await interaction.channel?.send(error!);
 			isBeingUsed = false;
-		}
-		else {
+		} else {
 			await interaction.channel?.send({ files: screenshots });
 			if (screenshots!.length > 1)
-				await interaction.channel?.send("Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem.");
+				await interaction.channel?.send(
+					"Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem."
+				);
 
 			fs.emptyDirSync(path.resolve(__dirname, "../../screenshots"));
 			isBeingUsed = false;
@@ -96,44 +101,50 @@ export = {
 			screenshots?: string[];
 			error?: string;
 		}
-		async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
+		async function hardClick(
+			element: ElementHandle<Element> | null,
+			webPage: Page
+		): Promise<void> {
 			// Sometimes built-in click() method doesn't work
 			// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
-			if (!element)
-				return;
+			if (!element) return;
 
 			await element.focus();
 			await webPage.keyboard.type("\n");
 		}
-		async function scrape(bookUrl: string, page: number, exercise: string): Promise<ScrapeResult> {
+		async function scrape(
+			bookUrl: string,
+			page: number,
+			exercise: string
+		): Promise<ScrapeResult> {
 			// Setup browser
 			const width = 1200;
 			const height = 1200;
 			const website = "https://odrabiamy.pl/";
 			const cookiesPath = path.resolve(__dirname, "../config/cookies.json");
 
-			const browser = await pup
-				.use(stealthPlugin())
-				.launch({
-					// devtools: true,
-					// slowMo: 100,
-					headless: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD !== undefined,
-					args: [
-						`--window-size=${width},${height}`,
-						"--no-sandbox",
-						// "--disable-setuid-sandbox",
-						// "--disable-dev-shm-usage",
-						// "--disable-accelerated-2d-canvas",
-						// "--no-first-run",
-						// "--no-zygote",
-						process.platform === "linux" && process.arch === "arm64" ? "--single-process" : "", // this one doesn't works on Windows
-						// "--disable-gpu"
-					],
-					defaultViewport: { width: width, height: height }
-				});
+			const browser = await pup.use(stealthPlugin()).launch({
+				// devtools: true,
+				// slowMo: 100,
+				headless: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD !== undefined,
+				args: [
+					`--window-size=${width},${height}`,
+					"--no-sandbox",
+					// "--disable-setuid-sandbox",
+					// "--disable-dev-shm-usage",
+					// "--disable-accelerated-2d-canvas",
+					// "--no-first-run",
+					// "--no-zygote",
+					process.platform === "linux" && process.arch === "arm64"
+						? "--single-process"
+						: ""
+					// "--disable-gpu"
+				],
+				defaultViewport: { width: width, height: height }
+			});
 
 			console.log(`\n------ ${getCurrentTime()}  ------`);
-			console.log("1. started chrome " + await browser.version());
+			console.log("1. started chrome " + (await browser.version()));
 
 			try {
 				// Load page
@@ -141,7 +152,9 @@ export = {
 
 				// Load cookies
 				if (fs.existsSync(cookiesPath)) {
-					const cookiesString = fs.readFileSync(cookiesPath, { encoding: "utf-8" });
+					const cookiesString = fs.readFileSync(cookiesPath, {
+						encoding: "utf-8"
+					});
 					const cookies = JSON.parse(cookiesString);
 					await webPage.setCookie(...cookies);
 					console.log("2. cookies loaded: " + cookiesPath);
@@ -153,9 +166,11 @@ export = {
 				const cookiesAcceptID = "#qa-rodo-accept";
 				const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID);
 				await hardClick(cookiesAccept, webPage);
-				await webPage.waitForSelector(cookiesAcceptID, { hidden: true });
+				await webPage.waitForSelector(cookiesAcceptID, {
+					hidden: true
+				});
 				console.log("4. cookies accepted");
-				
+
 				// Login if not logged in or cookies expired
 				console.log("5. url: " + webPage.url());
 				if (webPage.url() !== "https://odrabiamy.pl/moje") {
@@ -165,23 +180,28 @@ export = {
 					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
 					await webPage.waitForNavigation();
-					
+
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 					console.log("6. logged in");
-					
+
 					// Set cookies after login
 					const cookies = await webPage.cookies();
-					fs.writeFile(path.resolve(__dirname, "../config/cookies.json"), JSON.stringify(cookies, null, 2));
+					fs.writeFile(
+						path.resolve(__dirname, "../config/cookies.json"),
+						JSON.stringify(cookies, null, 2)
+					);
 					console.log("7. cookies set");
 				}
 
 				// Close any pop-ups
-				const popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']");
+				const popupCloseElement = await webPage.waitForSelector(
+					"[data-testid='close-button']"
+				);
 				if (popupCloseElement) {
 					await hardClick(popupCloseElement, webPage);
 					console.log("8. popup closed");
 				}
-				
+
 				// Go to correct page
 				await webPage.goto(website + bookUrl + `strona-${page}`);
 				console.log("9. changed page: " + webPage.url());
@@ -197,12 +217,38 @@ export = {
 				// Select exercise and take screenshots
 				const exerciseSelector = `#qa-exercise-no-${exercise} > a`;
 				const exerciseBtns = await webPage.$$(exerciseSelector);
+
+				if (exerciseBtns.length === 0) {
+					const similarExercises = await webPage.$$(`#qa-exercise-no-${exercise}a > a`);
+					if (similarExercises.length > 0) {
+						await browser.close();
+						return {
+							error:
+								"Nie znaleziono zadania " +
+								exercise +
+								" na stronie " +
+								page +
+								", ale znaleziono podpunkty tego zadania."
+						};
+					} else {
+						await browser.close();
+						return {
+							error:
+								"Nie znaleziono zadania " + exercise + " na stronie " + page + "."
+						};
+					}
+				}
+
 				console.log("10. found exercise buttons");
 
 				const screenshotNames: string[] = [];
 				for (let i = 0; i < exerciseBtns.length; i++) {
 					// Only this click works
-					await webPage.$$eval(exerciseSelector, (elements, i) => (elements[i] as HTMLElement).click(), i);
+					await webPage.$$eval(
+						exerciseSelector,
+						(elements, i) => (elements[i] as HTMLElement).click(),
+						i
+					);
 					console.log("11. clicked exercise button " + i);
 
 					// Wait for the solution to load
@@ -224,15 +270,17 @@ export = {
 				await browser.close();
 				console.log("14. browser closed");
 				return { screenshots: screenshotNames };
-			}
-			catch (err: any) {
+			} catch (err: any) {
 				await browser.close();
+				isBeingUsed = false;
 
 				let aux = err.stack.split("\n");
-				aux.splice(0, 2);	// removing the line that we force to generate the error (var err = new Error();) from the message
+				aux.splice(0, 2); // removing the line that we force to generate the error (var err = new Error();) from the message
 				aux = aux.join("\n");
 
-				return { error: "Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux };
+				return {
+					error: "Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux
+				};
 			}
 		}
 	}

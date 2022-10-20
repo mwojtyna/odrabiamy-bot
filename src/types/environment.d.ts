@@ -11,4 +11,4 @@ declare global {
 }
 
 // Required for type definition to work
-export { };
+export {};

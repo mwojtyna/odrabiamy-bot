@@ -13,17 +13,27 @@ import { Command } from "./main";
 	dotenv.config();
 
 	const commands = [];
-	const files = fs.readdirSync(path.resolve(`${__dirname}/commands`, ".")).filter(file => file.endsWith(".ts"));
+	const files = fs
+		.readdirSync(path.resolve(`${__dirname}/commands`, "."))
+		.filter(file => file.endsWith(".ts"));
 	console.log("Commands found: " + files);
 
 	for (const file of files) {
-		const command = await import(`./commands/${file}`) as Command;
+		const command = (await import(`./commands/${file}`)) as Command;
 		commands.push(command.data.toJSON());
 	}
 	console.log(commands);
 
 	const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
-	rest.put(Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID), { body: commands })
+	rest.put(
+		Routes.applicationGuildCommands(
+			process.env.APP_ID,
+			process.env.GUILD_ID
+		),
+		{ body: commands }
+	)
 		.then(() => console.log(clc.green("Registered commands.")))
-		.catch((err) => console.error(clc.red(`Error registering commands:\n${err}`)));
+		.catch(err =>
+			console.error(clc.red(`Error registering commands:\n${err}`))
+		);
 })();

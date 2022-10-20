@@ -7,9 +7,9 @@ import clc from "cli-color";
 import express from "express";
 
 export type Command = {
-	data: SlashCommandBuilder,
-	execute: (interaction: CommandInteraction<CacheType>) => Promise<void>
-}
+	data: SlashCommandBuilder;
+	execute: (interaction: CommandInteraction<CacheType>) => Promise<void>;
+};
 
 (async () => {
 	dotenv.config();
@@ -28,30 +28,32 @@ export type Command = {
 
 	// Retrieve commands
 	const commands = new Collection<string, Command>();
-	const files = fs.readdirSync(path.resolve(__dirname, "./commands")).filter(file => file.endsWith(".ts"));
+	const files = fs
+		.readdirSync(path.resolve(__dirname, "./commands"))
+		.filter(file => file.endsWith(".ts"));
 	for (const file of files) {
-		const command = await import(`./commands/${file}`) as Command;
+		const command = (await import(`./commands/${file}`)) as Command;
 		commands.set(command.data.name, command);
 	}
 
 	// Execute commands
 	client.on("interactionCreate", async interaction => {
-		if (!interaction.isCommand())
-			return;
+		if (!interaction.isCommand()) return;
 
 		const command = commands.get(interaction.commandName);
 
-		if (!command)
-			return;
+		if (!command) return;
 
 		try {
 			await command.execute(interaction);
 		} catch (err: any) {
 			let aux = err.stack.split("\n");
-			aux.splice(0, 2);	//removing the line that we force to generate the error (var err = new Error();) from the message
+			aux.splice(0, 2); //removing the line that we force to generate the error (var err = new Error();) from the message
 			aux = aux.join("\n");
 
-			await interaction.channel?.send({ content: "Błąd (main.ts):\n\n" + err.message + "\n\n" + aux });
+			await interaction.channel?.send({
+				content: "Błąd (main.ts):\n\n" + err.message + "\n\n" + aux
+			});
 		}
 	});
 
