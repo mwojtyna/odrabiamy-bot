@@ -185,13 +185,13 @@ export = {
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 					console.log("6. logged in");
 
-					// Set cookies after login
+					// Save cookies after login
 					const cookies = await webPage.cookies();
 					fs.writeFile(
 						path.resolve(__dirname, "../config/cookies.json"),
 						JSON.stringify(cookies, null, 2)
 					);
-					console.log("7. cookies set");
+					console.log("7. cookies saved");
 				}
 
 				// Close any pop-ups
