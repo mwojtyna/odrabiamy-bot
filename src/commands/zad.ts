@@ -97,10 +97,6 @@ export = {
 		}
 
 		// SCRAPING
-		interface ScrapeResult {
-			screenshots?: string[];
-			error?: string;
-		}
 		async function hardClick(
 			element: ElementHandle<Element> | null,
 			webPage: Page
@@ -111,6 +107,11 @@ export = {
 
 			await element.focus();
 			await webPage.keyboard.type("\n");
+		}
+
+		interface ScrapeResult {
+			screenshots?: string[];
+			error?: string;
 		}
 		async function scrape(
 			bookUrl: string,
@@ -194,9 +195,15 @@ export = {
 				}
 
 				// Close any pop-ups
-				const popupCloseElement = await webPage.waitForSelector(
-					"[data-testid='close-button']"
-				);
+				let popupCloseElement: ElementHandle<Element> | null = null;
+				try {
+					popupCloseElement = await webPage.waitForSelector(
+						"[data-testid='close-button']",
+						{ timeout: 3000 }
+					);
+				} catch (error) {
+					console.log("8. didn't find popup close button");
+				}
 				if (popupCloseElement) {
 					await hardClick(popupCloseElement, webPage);
 					console.log("8. popup closed");
