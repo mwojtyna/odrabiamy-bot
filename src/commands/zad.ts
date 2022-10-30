@@ -202,7 +202,7 @@ export = {
 						{ timeout: 3000 }
 					);
 				} catch (error) {
-					console.log("8. didn't find popup close button");
+					console.log("8. didn't find popup to close");
 				}
 				if (popupCloseElement) {
 					await hardClick(popupCloseElement, webPage);
