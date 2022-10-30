@@ -1,5 +1,4 @@
-# Only this specific version will work with pupeteer 15.4.2 on arm64v8
-FROM arm64v8/node:16.17.0-bullseye-slim
+FROM arm64v8/node:18.12-bullseye-slim
 WORKDIR /app
 
 # Install dependencies

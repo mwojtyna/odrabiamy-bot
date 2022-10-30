@@ -97,10 +97,6 @@ export = {
 		}
 
 		// SCRAPING
-		interface ScrapeResult {
-			screenshots?: string[];
-			error?: string;
-		}
 		async function hardClick(
 			element: ElementHandle<Element> | null,
 			webPage: Page
@@ -111,6 +107,11 @@ export = {
 
 			await element.focus();
 			await webPage.keyboard.type("\n");
+		}
+
+		interface ScrapeResult {
+			screenshots?: string[];
+			error?: string;
 		}
 		async function scrape(
 			bookUrl: string,
@@ -184,19 +185,25 @@ export = {
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 					console.log("6. logged in");
 
-					// Set cookies after login
+					// Save cookies after login
 					const cookies = await webPage.cookies();
 					fs.writeFile(
 						path.resolve(__dirname, "../config/cookies.json"),
 						JSON.stringify(cookies, null, 2)
 					);
-					console.log("7. cookies set");
+					console.log("7. cookies saved");
 				}
 
 				// Close any pop-ups
-				const popupCloseElement = await webPage.waitForSelector(
-					"[data-testid='close-button']"
-				);
+				let popupCloseElement: ElementHandle<Element> | null = null;
+				try {
+					popupCloseElement = await webPage.waitForSelector(
+						"[data-testid='close-button']",
+						{ timeout: 3000 }
+					);
+				} catch (error) {
+					console.log("8. didn't find popup to close");
+				}
 				if (popupCloseElement) {
 					await hardClick(popupCloseElement, webPage);
 					console.log("8. popup closed");

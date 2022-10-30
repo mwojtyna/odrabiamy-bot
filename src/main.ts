@@ -31,6 +31,7 @@ export type Command = {
 	const files = fs
 		.readdirSync(path.resolve(__dirname, "./commands"))
 		.filter(file => file.endsWith(".ts"));
+
 	for (const file of files) {
 		const command = (await import(`./commands/${file}`)) as Command;
 		commands.set(command.data.name, command);
