@@ -4,8 +4,8 @@
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
-		"start": "ts-node src/main.ts",
-		"dev": "ts-node-dev --files --respawn src/main.ts",
+		"start": "ts-node --transpile-only src/main.ts",
+		"dev": "nodemon --files src/main.ts",
 		"build": "ts-node src/commands-deploy.ts ",
 		"logout": "rm src/config/cookies.json",
 		"preinstall": "(sw_vers || echo PUPPETEER_SKIP_CHROMIUM_DOWNLOAD) && export PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM=true"
@@ -28,8 +28,7 @@
 		"@types/puppeteer": "^5.4.6",
 		"@typescript-eslint/eslint-plugin": "^5.38.0",
 		"@typescript-eslint/parser": "^5.38.0",
-		"ts-node": "^10.9.1",
-		"ts-node-dev": "^2.0.0"
+		"ts-node": "^10.9.1"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.2.0",
@@ -40,6 +39,7 @@
 		"dotenv": "^16.0.2",
 		"express": "^4.18.1",
 		"fs-extra": "^10.1.0",
+		"nodemon": "^2.0.20",
 		"puppeteer": "18.0.5",
 		"puppeteer-extra": "^3.3.4",
 		"puppeteer-extra-plugin-stealth": "^2.11.1"
