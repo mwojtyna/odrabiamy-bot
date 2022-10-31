@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
-import { ElementHandle, Page } from "puppeteer";
+import { ElementHandle, Page, executablePath } from "puppeteer";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
@@ -128,6 +128,7 @@ export = {
 				// devtools: true,
 				// slowMo: 100,
 				headless: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD !== undefined,
+				executablePath: executablePath(),
 				args: [
 					`--window-size=${width},${height}`,
 					"--no-sandbox",
