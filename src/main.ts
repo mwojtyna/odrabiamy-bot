@@ -12,7 +12,7 @@ export type Command = {
 };
 
 (async () => {
-	dotenv.config();
+	dotenv.config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env.dev" });
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });

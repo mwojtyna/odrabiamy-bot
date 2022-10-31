@@ -10,7 +10,7 @@ import { Command } from "./main";
 //** Run 'npx ts-node src/commands-deploy.ts' to register commands */
 
 (async () => {
-	dotenv.config();
+	dotenv.config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env.dev" });
 
 	const commands = [];
 	const files = fs
@@ -25,15 +25,9 @@ import { Command } from "./main";
 	console.log(commands);
 
 	const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
-	rest.put(
-		Routes.applicationGuildCommands(
-			process.env.APP_ID,
-			process.env.GUILD_ID
-		),
-		{ body: commands }
-	)
+	rest.put(Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID), {
+		body: commands
+	})
 		.then(() => console.log(clc.green("Registered commands.")))
-		.catch(err =>
-			console.error(clc.red(`Error registering commands:\n${err}`))
-		);
+		.catch(err => console.error(clc.red(`Error registering commands:\n${err}`)));
 })();

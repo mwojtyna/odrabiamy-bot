@@ -8,6 +8,7 @@ RUN apt-get install -y chromium curl
 # Install packages
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV NODE_ENV=production
 COPY package*.json .
 RUN npm i
 

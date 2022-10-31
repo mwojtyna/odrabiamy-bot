@@ -6,6 +6,7 @@ declare global {
 			GUILD_ID: string;
 			EMAIL: string;
 			PASSWORD: string;
+			NODE_ENV: "development" | "production";
 		}
 	}
 }
