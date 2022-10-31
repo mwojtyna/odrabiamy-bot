@@ -263,10 +263,6 @@ export = {
 					await webPage.waitForResponse(response => response.url().includes("visits"));
 					console.log("12. exercise loaded");
 
-					if (!fs.existsSync("screenshots/")) {
-						fs.mkdirSync("screenshots/");
-					}
-
 					const screenshotName = `screenshots/screen-${i}.png`;
 					screenshotNames.push(screenshotName);
 

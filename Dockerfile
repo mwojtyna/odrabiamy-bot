@@ -8,13 +8,15 @@ RUN apt-get install -y chromium curl
 # Install packages
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV NODE_ENV=production
+ENV NODE_ENV=productionnv
 COPY package*.json .
 RUN npm i
 
 # Copy required files to /app
 COPY tsconfig.json .
 COPY /src ./src
+RUN mkdir screenshots/
+RUN mkdir ./src/config
 
 # Check express.js endpoint
 HEALTHCHECK --interval=3s --timeout=30s --start-period=10s --retries=5 \
