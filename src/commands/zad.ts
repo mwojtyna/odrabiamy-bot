@@ -181,6 +181,23 @@ export = {
 					await webPage.type("input[type='email']", process.env.EMAIL);
 					await webPage.type("input[type='password']", process.env.PASSWORD);
 					await webPage.click("#qa-login");
+
+					// Inform if captcha is detected
+					try {
+						const captcha = await webPage.waitForSelector("#rc-imageselect", {
+							timeout: 1000
+						});
+						if (captcha) {
+							await browser.close();
+							return {
+								error: "Wykryto captchę, nie można się zalogować"
+							};
+						}
+					} catch (error) {
+						// Do nothing if captcha is not detected
+						false;
+					}
+
 					await webPage.waitForNavigation();
 
 					interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
