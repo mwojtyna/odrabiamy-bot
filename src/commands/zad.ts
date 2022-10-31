@@ -26,7 +26,7 @@ const getCurrentTime = () => {
 export = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
-		.setDescription("Odpowiada ze screenem zadania.")
+		.setDescription("Odpowiada ze screenem zadania")
 		.addIntegerOption(option =>
 			option
 				.setName("strona")

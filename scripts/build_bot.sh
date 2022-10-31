@@ -1,5 +1,5 @@
 #!/bin/bash
-docker build -t matijas05/odrabiamy-bot:$VERSION .
+docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
 
 if [ "$1" == "--run" ]; then
 	docker run -d --env-file .env-dev --name odrabiamy-bot matijas05/odrabiamy-bot:$VERSION
