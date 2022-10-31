@@ -19,7 +19,7 @@ export type Command = {
 	client.once("ready", () => {
 		// Setup healthcheck endpoint
 		const app = express();
-		app.listen(3000, () => console.log(clc.green("ready")));
+		app.listen(3000, () => console.log(clc.green(`ready (${process.env.NODE_ENV})`)));
 
 		app.get("/", (_, res) => {
 			res.sendStatus(200);

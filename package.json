@@ -4,9 +4,10 @@
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
-		"start": "ts-node --transpile-only src/main.ts",
+		"start": "[[ \"$NODE_ENV\" == \"production\" ]] && ts-node --transpile-only src/main.ts",
 		"dev": "export NODE_ENV=development && nodemon --files src/main.ts",
-		"build": "ts-node src/commands-deploy.ts ",
+		"commands-prod": "export NODE_ENV=production && ts-node src/commands-deploy.ts",
+		"commands-dev": "export NODE_ENV=development && ts-node src/commands-deploy.ts",
 		"logout": "rm src/config/cookies.json",
 		"preinstall": "sw_vers > /dev/null && export PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM=true"
 	},

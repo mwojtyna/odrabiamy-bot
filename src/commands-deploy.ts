@@ -28,6 +28,8 @@ import { Command } from "./main";
 	rest.put(Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID), {
 		body: commands
 	})
-		.then(() => console.log(clc.green("Registered commands.")))
-		.catch(err => console.error(clc.red(`Error registering commands:\n${err}`)));
+		.then(() => console.log(clc.green(`Registered commands (${process.env.NODE_ENV}).`)))
+		.catch(err =>
+			console.error(clc.red(`Error registering commands (${process.env.NODE_ENV}):\n${err}`))
+		);
 })();
