@@ -10,7 +10,7 @@ import { Command } from "./main";
 //** Run 'npx ts-node src/commands-deploy.ts' to register commands */
 
 (async () => {
-	dotenv.config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env.dev" });
+	dotenv.config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env-dev" });
 
 	const commands = [];
 	const files = fs
