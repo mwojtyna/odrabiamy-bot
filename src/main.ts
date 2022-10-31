@@ -16,14 +16,7 @@ export type Command = {
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
-	client.once("ready", client => {
-		// Exit from servers with a different id than in .env
-		client.guilds.cache.forEach(async guild => {
-			if (guild.id !== process.env.GUILD_ID) {
-				await guild.leave();
-			}
-		});
-
+	client.once("ready", () => {
 		// Setup healthcheck endpoint
 		const app = express();
 		app.listen(3000, () => console.log(clc.green(`ready (${process.env.NODE_ENV})`)));
@@ -46,11 +39,14 @@ export type Command = {
 
 	// Execute commands
 	client.on("interactionCreate", async interaction => {
-		if (!interaction.isCommand()) return;
+		if (interaction.guildId !== process.env.GUILD_ID || !interaction.isCommand()) {
+			return;
+		}
 
 		const command = commands.get(interaction.commandName);
-
-		if (!command) return;
+		if (!command) {
+			return;
+		}
 
 		try {
 			await command.execute(interaction);
