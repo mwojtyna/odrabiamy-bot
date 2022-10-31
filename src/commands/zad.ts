@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
-import { ElementHandle, Page } from "puppeteer";
+import { ElementHandle, Page, executablePath } from "puppeteer";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
@@ -128,6 +128,7 @@ export = {
 				// devtools: true,
 				// slowMo: 100,
 				headless: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD !== undefined,
+				executablePath: executablePath(),
 				args: [
 					`--window-size=${width},${height}`,
 					"--no-sandbox",
@@ -261,10 +262,6 @@ export = {
 					// Wait for the solution to load
 					await webPage.waitForResponse(response => response.url().includes("visits"));
 					console.log("12. exercise loaded");
-
-					if (!fs.existsSync("screenshots/")) {
-						fs.mkdirSync("screenshots/");
-					}
 
 					const screenshotName = `screenshots/screen-${i}.png`;
 					screenshotNames.push(screenshotName);

@@ -71,8 +71,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
-.env.test
+.env*
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -105,11 +104,9 @@ dist
 # TernJS port file
 .tern-port
 
-# Website screenshots
+# App-specific data
 screenshots/
-
-# Sensitive data
-src/config/cookies.json
+src/config/*
 
 # VS Code
 .vscode/

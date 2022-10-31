@@ -12,14 +12,14 @@ export type Command = {
 };
 
 (async () => {
-	dotenv.config();
+	if (process.env.NODE_ENV === "development") dotenv.config({ path: ".env-dev" });
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
 	client.once("ready", () => {
 		// Setup healthcheck endpoint
 		const app = express();
-		app.listen(3000, () => console.log(clc.green("ready")));
+		app.listen(3000, () => console.log(clc.green(`ready (${process.env.NODE_ENV})`)));
 
 		app.get("/", (_, res) => {
 			res.sendStatus(200);
@@ -39,11 +39,14 @@ export type Command = {
 
 	// Execute commands
 	client.on("interactionCreate", async interaction => {
-		if (!interaction.isCommand()) return;
+		if (interaction.guildId !== process.env.GUILD_ID || !interaction.isCommand()) {
+			return;
+		}
 
 		const command = commands.get(interaction.commandName);
-
-		if (!command) return;
+		if (!command) {
+			return;
+		}
 
 		try {
 			await command.execute(interaction);
