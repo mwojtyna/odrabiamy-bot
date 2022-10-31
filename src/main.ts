@@ -16,7 +16,14 @@ export type Command = {
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });
-	client.once("ready", () => {
+	client.once("ready", client => {
+		// Exit from servers with a different id than in .env
+		client.guilds.cache.forEach(async guild => {
+			if (guild.id !== process.env.GUILD_ID) {
+				await guild.leave();
+			}
+		});
+
 		// Setup healthcheck endpoint
 		const app = express();
 		app.listen(3000, () => console.log(clc.green(`ready (${process.env.NODE_ENV})`)));
