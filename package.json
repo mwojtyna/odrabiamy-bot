@@ -1,13 +1,13 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.6.4",
+	"version": "1.7.0",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
 		"start": "if [ \"$NODE_ENV\" = \"production\" ]; then ts-node --transpile-only src/main.ts; fi",
 		"dev": "export NODE_ENV=development && nodemon --files src/main.ts",
-		"commands-prod": "export NODE_ENV=production && ts-node src/commands-deploy.ts",
-		"commands-dev": "export NODE_ENV=development && ts-node src/commands-deploy.ts",
+		"commands": "ts-node src/commands-deploy.ts",
+		"commands-dev": "ts-node src/commands-deploy-dev.ts",
 		"logout": "rm src/config/cookies.json"
 	},
 	"repository": {
