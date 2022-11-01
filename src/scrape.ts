@@ -150,6 +150,15 @@ export async function scrape(
 				timeout: 5000
 			});
 		} catch (error) {
+			// If exercises don't load, check if account is not blocked
+			if (await webPage.$("#qa-premium-blockade")) {
+				await browser.close();
+				return {
+					// Has to be UnhandledError in order to fail tests
+					error: new UnhandledError("Konto zostało tymczasowo zablokowane :(")
+				};
+			}
+
 			await browser.close();
 			return {
 				error: new HandledError(`Strona ${page} nie istnieje.`)

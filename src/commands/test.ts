@@ -12,6 +12,7 @@ interface Test {
 	bookUrl: string;
 	page: number;
 	exercise: string;
+	expectHandledError?: true;
 	trailingDot?: true;
 	logIn?: true;
 }
@@ -54,19 +55,22 @@ const tests: Test[] = [
 		name: "Error: exercise not found",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 292,
-		exercise: "6"
+		exercise: "6",
+		expectHandledError: true
 	},
 	{
 		name: "Error: exercise not found, but subexercises exist",
 		bookUrl: "jezyk-niemiecki/ksiazka-13067/",
 		page: 44,
-		exercise: "4"
+		exercise: "4",
+		expectHandledError: true
 	},
 	{
 		name: "Error: page not found",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 2921,
-		exercise: "6"
+		exercise: "6",
+		expectHandledError: true
 	}
 ];
 
@@ -97,7 +101,7 @@ export = {
 
 		// Run tests
 		const results: boolean[] = [];
-		for (let i = from; i < tests.slice(from, to + 1).length; i++) {
+		for (let i = from; i < (from === to ? from + 1 : tests.slice(from, to + 1).length); i++) {
 			const test = tests[i];
 			const message = await interaction.channel?.send(`\`Starting test '${test.name}'...\``);
 
@@ -112,7 +116,10 @@ export = {
 				!!test.trailingDot,
 				interaction
 			);
-			if (error instanceof UnhandledError) {
+			if (
+				error instanceof UnhandledError ||
+				(!test.expectHandledError && error instanceof HandledError)
+			) {
 				await message?.edit(
 					`\`\`\`diff\n-Test '${test.name}' failed with error:\n\n ${error.message}\`\`\``
 				);
