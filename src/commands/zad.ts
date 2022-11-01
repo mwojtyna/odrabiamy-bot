@@ -121,13 +121,14 @@ export = {
 			// Setup browser
 			const width = 1200;
 			const height = 1200;
+			const headless = process.env.NODE_ENV === "production";
 			const website = "https://odrabiamy.pl/";
 			const cookiesPath = path.resolve(__dirname, "../config/cookies.json");
 
 			const browser = await pup.use(stealthPlugin()).launch({
 				// devtools: true,
 				// slowMo: 100,
-				headless: process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD !== undefined,
+				headless,
 				executablePath: executablePath(),
 				args: [
 					`--window-size=${width},${height}`,
@@ -145,7 +146,7 @@ export = {
 				defaultViewport: { width: width, height: height }
 			});
 
-			console.log(`\n------ ${getCurrentTime()}  ------`);
+			console.log(`\n------ ${getCurrentTime()} ------`);
 			console.log("1. started chrome " + (await browser.version()));
 
 			try {
@@ -187,7 +188,7 @@ export = {
 						const captcha = await webPage.waitForSelector("iframe[src*='recaptcha']", {
 							timeout: 1000
 						});
-						if (captcha) {
+						if (captcha && headless) {
 							await browser.close();
 							return {
 								error: "Wykryto captchę, nie można się zalogować"
