@@ -1,5 +1,5 @@
 import { REST } from "@discordjs/rest";
-import { Routes } from "discord-api-types/v10";
+import { RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord-api-types/v10";
 import fs from "fs-extra";
 import path from "path";
 import dotenv from "dotenv";
@@ -12,17 +12,19 @@ import { Command } from "./main";
 (async () => {
 	dotenv.config({ path: process.env.NODE_ENV === "production" ? ".env" : ".env-dev" });
 
-	const commands = [];
 	const files = fs
-		.readdirSync(path.resolve(`${__dirname}/commands`, "."))
+		.readdirSync(path.join(__dirname, "commands"))
 		.filter(file => file.endsWith(".ts"));
-	console.log("Commands found: " + files);
 
+	const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [];
 	for (const file of files) {
 		const command = (await import(`./commands/${file}`)) as Command;
-		commands.push(command.data.toJSON());
+		if (!command.devOnly || (command.devOnly && process.env.NODE_ENV === "development"))
+			commands.push(command.data.toJSON());
 	}
+
 	console.log(commands);
+	console.log("\nCommands found: " + commands.map(command => command.name).join(", "));
 
 	const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 	rest.put(Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID), {
