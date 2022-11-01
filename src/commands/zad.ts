@@ -61,15 +61,6 @@ export = {
 			return;
 		}
 
-		// Parse exercise number
-		let exerciseParsed = exercise;
-		if (exerciseParsed.charAt(exerciseParsed.length - 1) === "." && !book.trailingDot)
-			exerciseParsed = exerciseParsed.slice(0, -1);
-		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && book.trailingDot)
-			exerciseParsed += ".";
-
-		exerciseParsed = exerciseParsed.replaceAll(".", "\\.");
-
 		// Respond and animate message
 		await interaction.reply("Ściąganie odpowiedzi");
 		for (let i = 0; i < 30; i++) {
@@ -78,10 +69,16 @@ export = {
 
 		// Scrape and display
 		console.log(`\n------ ${getCurrentTime()} ------`);
-		const { screenshots, error } = await scrape(book.url, page, exerciseParsed, interaction);
+		const { screenshots, error } = await scrape(
+			book.url,
+			page,
+			exercise,
+			!!book.trailingDot,
+			interaction
+		);
 
 		if (error) {
-			await interaction.channel?.send(error!);
+			await interaction.channel?.send(error!.message);
 			isBeingUsed = false;
 		} else {
 			await interaction.channel?.send({ files: screenshots });

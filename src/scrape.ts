@@ -14,14 +14,27 @@ async function hardClick(element: ElementHandle<Element> | null, webPage: Page):
 	await webPage.keyboard.type("\n");
 }
 
+export class HandledError {
+	message: string;
+	constructor(message: string) {
+		this.message = message;
+	}
+}
+export class UnhandledError {
+	message: string;
+	constructor(message: string) {
+		this.message = message;
+	}
+}
 interface ScrapeResult {
 	screenshots?: string[];
-	error?: string;
+	error?: HandledError | UnhandledError;
 }
 export async function scrape(
 	bookUrl: string,
 	page: number,
 	exercise: string,
+	trailingDot: boolean,
 	interaction: CommandInteraction<CacheType>
 ): Promise<ScrapeResult> {
 	// Setup browser
@@ -94,7 +107,7 @@ export async function scrape(
 				if (captcha && headless) {
 					await browser.close();
 					return {
-						error: "Wykryto captchę, nie można się zalogować"
+						error: new HandledError("Wykryto captchę, nie można się zalogować")
 					};
 				}
 			} catch (error) {
@@ -139,7 +152,7 @@ export async function scrape(
 		} catch (error) {
 			await browser.close();
 			return {
-				error: "Nie znaleziono zadania " + exercise + " na stronie " + page + "."
+				error: new HandledError(`Strona ${page} nie istnieje.`)
 			};
 		}
 		console.log("10.a visits response");
@@ -148,8 +161,17 @@ export async function scrape(
 		await webPage.waitForResponse(response => response.url().includes("visits"));
 		console.log("10.c visits response");
 
+		// Parse exercise number (has to be here because of tests)
+		let exerciseParsed = exercise;
+		if (exerciseParsed.charAt(exerciseParsed.length - 1) === "." && !trailingDot)
+			exerciseParsed = exerciseParsed.slice(0, -1);
+		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && trailingDot)
+			exerciseParsed += ".";
+
+		exerciseParsed = exerciseParsed.replaceAll(".", "\\.");
+
 		// Select exercise and take screenshots
-		const exerciseSelector = `#qa-exercise-no-${exercise} > a`;
+		const exerciseSelector = `#qa-exercise-no-${exerciseParsed} > a`;
 		const exerciseBtns = await webPage.$$(exerciseSelector);
 
 		if (exerciseBtns.length === 0) {
@@ -157,17 +179,20 @@ export async function scrape(
 			if (similarExercises.length > 0) {
 				await browser.close();
 				return {
-					error:
+					error: new HandledError(
 						"Nie znaleziono zadania " +
-						exercise +
-						" na stronie " +
-						page +
-						", ale znaleziono podpunkty tego zadania."
+							exercise +
+							" na stronie " +
+							page +
+							", ale znaleziono podpunkty tego zadania."
+					)
 				};
 			} else {
 				await browser.close();
 				return {
-					error: "Nie znaleziono zadania " + exercise + " na stronie " + page + "."
+					error: new HandledError(
+						"Nie znaleziono zadania " + exercise + " na stronie " + page + "."
+					)
 				};
 			}
 		}
@@ -203,11 +228,11 @@ export async function scrape(
 		await browser.close();
 
 		let aux = err.stack.split("\n");
-		aux.splice(0, 2); // removing the line that we force to generate the error (var err = new Error();) from the message
+		aux.splice(0, 2); // removing the line that we force to generate the error (var err = new HandledError();) from the message
 		aux = aux.join("\n");
 
 		return {
-			error: "Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux
+			error: new UnhandledError("Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux)
 		};
 	}
 }
