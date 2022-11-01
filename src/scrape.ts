@@ -132,7 +132,16 @@ export async function scrape(
 		console.log("9. changed page: " + webPage.url());
 
 		// Wait for exercises to load
-		await webPage.waitForResponse(response => response.url().includes("visits"));
+		try {
+			await webPage.waitForResponse(response => response.url().includes("visits"), {
+				timeout: 5000
+			});
+		} catch (error) {
+			await browser.close();
+			return {
+				error: "Nie znaleziono zadania " + exercise + " na stronie " + page + "."
+			};
+		}
 		console.log("10.a visits response");
 		await webPage.waitForResponse(response => response.url().includes("exercises"));
 		console.log("10.b exercises response");
