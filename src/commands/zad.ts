@@ -90,7 +90,7 @@ export = {
 					"Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem."
 				);
 
-			fs.emptyDirSync(path.resolve(__dirname, "../../screenshots"));
+			fs.emptyDirSync(path.join(process.cwd(), "screenshots"));
 			isBeingUsed = false;
 
 			console.log(`Completed at: ${getCurrentTime()}`);

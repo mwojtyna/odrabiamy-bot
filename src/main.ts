@@ -14,6 +14,7 @@ export type Command = {
 };
 
 (async () => {
+	// Environment variables are already loaded in docker container
 	if (process.env.NODE_ENV === "development") dotenv.config({ path: ".env-dev" });
 
 	// Setup bot
@@ -31,7 +32,7 @@ export type Command = {
 	// Retrieve commands
 	const commands = new Collection<string, Command>();
 	const files = fs
-		.readdirSync(path.resolve(__dirname, "./commands"))
+		.readdirSync(path.join(__dirname, "commands"))
 		.filter(file => file.endsWith(".ts"));
 
 	for (const file of files) {
