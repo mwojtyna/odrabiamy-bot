@@ -1,6 +1,6 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {
@@ -26,8 +26,8 @@
 		"@types/express": "^4.17.14",
 		"@types/fs-extra": "^9.0.13",
 		"@types/puppeteer": "^5.4.7",
-		"@typescript-eslint/eslint-plugin": "^5.41.0",
-		"@typescript-eslint/parser": "^5.41.0",
+		"@typescript-eslint/eslint-plugin": "^5.42.0",
+		"@typescript-eslint/parser": "^5.42.0",
 		"nodemon": "^2.0.20"
 	},
 	"dependencies": {

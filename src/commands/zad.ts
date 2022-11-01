@@ -184,7 +184,7 @@ export = {
 
 					// Inform if captcha is detected
 					try {
-						const captcha = await webPage.waitForSelector("#rc-imageselect", {
+						const captcha = await webPage.waitForSelector("iframe[src*='recaptcha']", {
 							timeout: 1000
 						});
 						if (captcha) {
