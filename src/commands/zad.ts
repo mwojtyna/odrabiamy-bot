@@ -78,7 +78,7 @@ export = {
 		);
 
 		if (error) {
-			await interaction.channel?.send(error!.message);
+			await interaction.channel?.send(`\`\`\`diff\n-${error!.message}\`\`\``);
 			isBeingUsed = false;
 		} else {
 			await interaction.channel?.send({ files: screenshots });
