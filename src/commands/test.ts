@@ -140,8 +140,14 @@ export = {
 		// Restore cookies
 		fs.moveSync(cookiesBackupPath, cookiesPath, { overwrite: true });
 
+		// prettier-ignore
 		await interaction.channel?.send(
-			results.includes(false) ? "```diff\n-Tests failed.```" : "```diff\n+Tests passed.```"
+			results.includes(false)
+				? `\`\`\`diff\n-Tests failed (${results
+					.map((_, i) => i)
+					.filter(i => !results[i])
+					.join(", ")}).\`\`\``
+				: "```diff\n+Tests passed.```"
 		);
 	}
 } as Command;
