@@ -108,23 +108,21 @@ export async function scrape(
 			await webPage.type("input[type='password']", process.env.PASSWORD);
 			await webPage.click("#qa-login");
 
-			// Inform if captcha is detected
+			// Check for captcha
 			try {
-				const captcha = await webPage.waitForSelector("iframe[src*='recaptcha']", {
-					timeout: 1000
-				});
-				if (captcha && headless) {
+				await webPage.waitForNavigation({ timeout: 5000 });
+			} catch (error) {
+				if (headless) {
 					await browser.close();
 					return {
-						error: new HandledError("Wykryto captchę, nie można się zalogować")
+						// Has to be UnhandledError in order to fail tests
+						error: new UnhandledError("Wykryto captchę, nie można się zalogować")
 					};
+				} else {
+					// If not headless, wait for user to solve captcha
+					await webPage.waitForNavigation();
 				}
-			} catch (error) {
-				// Do nothing if captcha is not detected
-				false;
 			}
-
-			await webPage.waitForNavigation();
 
 			interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
 			console.log("6. logged in");
@@ -231,7 +229,7 @@ export async function scrape(
 			await webPage.waitForResponse(response => response.url().includes("visits"));
 			console.log("12. exercise loaded");
 
-			const screenshotName = `screenshots/screen-${i}.png`;
+			const screenshotName = `screenshots/screen-${i}.jpg`;
 			screenshotNames.push(screenshotName);
 
 			const solutionElement = (await webPage.$("#qa-exercise"))!;
