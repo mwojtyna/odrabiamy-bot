@@ -29,14 +29,6 @@ export = {
 		),
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-		function getCurrentTime() {
-			const date = new Date();
-			return (
-				`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
-				`.${date.getMonth() + 1}.${date.getFullYear()}`
-			);
-		}
-
 		if (isBeingUsed) {
 			await interaction.reply("Bot jest już używany przez inną osobę!");
 			return;
@@ -68,7 +60,6 @@ export = {
 		}
 
 		// Scrape and display
-		console.log(`\n------ ${getCurrentTime()} ------`);
 		const { screenshots, error } = await scrape(
 			book.url,
 			page,
@@ -89,8 +80,6 @@ export = {
 
 			fs.emptyDirSync(path.join(process.cwd(), "screenshots"));
 			isBeingUsed = false;
-
-			console.log(`Completed at: ${getCurrentTime()}`);
 		}
 	}
 } as Command;

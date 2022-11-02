@@ -5,6 +5,13 @@ import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
 import path from "path";
 
+function getCurrentTime() {
+	const date = new Date();
+	return (
+		`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
+		`.${date.getMonth() + 1}.${date.getFullYear()}`
+	);
+}
 async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
 	// Sometimes built-in click() method doesn't work
 	// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
@@ -37,6 +44,8 @@ export async function scrape(
 	trailingDot: boolean,
 	interaction: CommandInteraction<CacheType>
 ): Promise<ScrapeResult> {
+	console.log(`\n------ ${getCurrentTime()} ------`);
+
 	// Setup browser
 	const width = 1200;
 	const height = 1200;
@@ -232,6 +241,7 @@ export async function scrape(
 
 		await browser.close();
 		console.log("14. browser closed");
+		console.log(`Completed at: ${getCurrentTime()}`);
 		return { screenshots: screenshotNames };
 	} catch (err: any) {
 		await browser.close();
