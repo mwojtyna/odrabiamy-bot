@@ -116,6 +116,7 @@ export = {
 				!!test.trailingDot,
 				interaction
 			);
+
 			if (
 				error instanceof UnhandledError ||
 				(error instanceof HandledError && !test.expectHandledError)
@@ -125,10 +126,9 @@ export = {
 				);
 				results.push(false);
 			} else if (!error || error instanceof HandledError) {
-				await message?.edit({
-					content: `\`\`\`diff\n+Test '${test.name}' passed.\`\`\``,
-					files: screenshots
-				});
+				await message?.edit(`\`\`\`diff\n+Test '${test.name}' passed.\`\`\``);
+				if (screenshots) await interaction.channel?.send({ files: screenshots });
+
 				results.push(true);
 			}
 
