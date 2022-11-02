@@ -12,8 +12,8 @@ interface Test {
 	bookUrl: string;
 	page: number;
 	exercise: string;
-	expectHandledError?: true;
 	trailingDot?: true;
+	expectHandledError?: true;
 	logIn?: true;
 }
 const tests: Test[] = [
@@ -118,7 +118,7 @@ export = {
 			);
 			if (
 				error instanceof UnhandledError ||
-				(!test.expectHandledError && error instanceof HandledError)
+				(error instanceof HandledError && !test.expectHandledError)
 			) {
 				await message?.edit(
 					`\`\`\`diff\n-Test '${test.name}' failed with error:\n\n ${error.message}\`\`\``
