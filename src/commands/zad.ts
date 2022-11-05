@@ -9,7 +9,7 @@ import config from "../config/config.json";
 
 interface BookJSON {
 	url: string;
-	trailingDot?: boolean;
+	trailingDot?: true;
 }
 let isBeingUsed = false;
 

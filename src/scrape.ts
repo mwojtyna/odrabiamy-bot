@@ -191,7 +191,7 @@ export async function scrape(
 		const exerciseBtns = await webPage.$$(exerciseSelector);
 
 		if (exerciseBtns.length === 0) {
-			const similarExercises = await webPage.$$(`#qa-exercise-no-${exercise}a > a`);
+			const similarExercises = await webPage.$$(`#qa-exercise-no-${exerciseParsed}a > a`);
 			if (similarExercises.length > 0) {
 				await browser.close();
 				return {
