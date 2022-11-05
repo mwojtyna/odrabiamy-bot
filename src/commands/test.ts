@@ -27,6 +27,12 @@ const tests: Test[] = [
 		logIn: true
 	},
 	{
+		name: "Exercise with dot",
+		bookUrl: "matematyka/ksiazka-13128/",
+		page: 86,
+		exercise: "3.65"
+	},
+	{
 		name: "Subexercise",
 		bookUrl: "jezyk-niemiecki/ksiazka-13067/",
 		page: 44,
@@ -53,6 +59,13 @@ const tests: Test[] = [
 	// Errors
 	{
 		name: "Error: exercise not found",
+		bookUrl: "matematyka/ksiazka-13007/",
+		page: 86,
+		exercise: "3.90",
+		expectHandledError: true
+	},
+	{
+		name: "Error: exercise not found (with dot)",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 292,
 		exercise: "6",
