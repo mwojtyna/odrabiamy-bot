@@ -8,7 +8,8 @@
 		"dev": "export NODE_ENV=development && nodemon --files src/main.ts",
 		"commands": "ts-node src/commands-deploy.ts",
 		"commands-dev": "ts-node src/commands-deploy-dev.ts",
-		"logout": "rm src/config/cookies.json"
+		"logout": "rm src/config/cookies.json",
+		"global": "npm i -g nodemon"
 	},
 	"repository": {
 		"type": "git",
@@ -27,8 +28,7 @@
 		"@types/fs-extra": "^9.0.13",
 		"@types/puppeteer": "^5.4.7",
 		"@typescript-eslint/eslint-plugin": "^5.42.0",
-		"@typescript-eslint/parser": "^5.42.0",
-		"nodemon": "^2.0.20"
+		"@typescript-eslint/parser": "^5.42.0"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.3.0",
