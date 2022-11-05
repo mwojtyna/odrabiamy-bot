@@ -42,21 +42,21 @@ export async function scrape(
 	page: number,
 	exercise: string,
 	trailingDot: boolean,
-	interaction: CommandInteraction<CacheType>
+	interaction: CommandInteraction<CacheType>,
+	headless?: boolean
 ): Promise<ScrapeResult> {
 	console.log(`\n------ ${getCurrentTime()} ------`);
 
 	// Setup browser
 	const width = 1200;
 	const height = 1200;
-	const headless = process.env.NODE_ENV === "production";
 	const website = "https://odrabiamy.pl/";
 	const cookiesPath = path.join(__dirname, "config/cookies.json");
 
 	const browser = await pup.use(stealthPlugin()).launch({
 		// devtools: true,
 		// slowMo: 100,
-		headless,
+		headless: headless || process.env.NODE_ENV === "production",
 		executablePath: executablePath(),
 		args: [
 			`--window-size=${width},${height}`,

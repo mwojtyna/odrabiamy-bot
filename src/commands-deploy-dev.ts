@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 
 import { Command } from "./main";
 
-//** Run 'npx ts-node src/commands-deploy.ts' to register commands */
+//** Run 'npx ts-node src/commands-deploy.ts' to register commands in dev guild */
 
 (async () => {
 	dotenv.config({ path: path.join(process.cwd(), ".env-dev") });
