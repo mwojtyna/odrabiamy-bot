@@ -1,4 +1,4 @@
-# odrabiamy-bot v1.7.0
+# odrabiamy-bot v1.7.1
 
 Discord bot for retrieving data from <https://odrabiamy.pl/>
 
@@ -18,7 +18,7 @@ docker run -d \
  -e EMAIL="<email>" \
  -e PASSWORD="<password>" \
  -v "/srv/odrabiamy-bot/config:/app/src/config" \
- matijas05/odrabiamy-bot:1.7.0
+ matijas05/odrabiamy-bot:1.7.1
 ```
 
 OR
@@ -29,7 +29,7 @@ docker run -d \
  --restart unless-stopped \
  --env-file <.env_file_path> \
  -v "/srv/odrabiamy-bot/config:/app/src/config" \
- matijas05/odrabiamy-bot:1.7.0
+ matijas05/odrabiamy-bot:1.7.1
 ```
 
 OR (using docker compose)
@@ -39,7 +39,7 @@ version: '2.1'
 services:
   odrabiamy-bot:
     container_name: odrabiamy-bot
-    image: matijas05/odrabiamy-bot:1.7.0
+    image: matijas05/odrabiamy-bot:1.7.1
     restart: always
     volumes:
       - /srv/odrabiamy-bot/config:/app/src/config
