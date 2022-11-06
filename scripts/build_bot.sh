@@ -1,4 +1,5 @@
 #!/bin/bash
+./scripts/remove_bot.sh
 docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
 
 if [ "$1" == "--run" ]; then
