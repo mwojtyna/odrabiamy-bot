@@ -48,6 +48,12 @@ const tests: Test[] = [
 		exercise: "1.28.",
 		trailingDot: true
 	},
+	{
+		name: "Exercise with emojis",
+		bookUrl: "matematyka/ksiazka-13128/",
+		page: 86,
+		exercise: "3.71"
+	},
 
 	// Errors
 	{
