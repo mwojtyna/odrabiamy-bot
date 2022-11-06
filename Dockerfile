@@ -20,10 +20,6 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV NODE_ENV=production
 
-# Get version from outside since we can't get it from package.json
-ARG VERSION=0.0.0
-ENV npm_package_version=$VERSION
-
 # Install packages
 COPY --from=deps /tmp/deps.json ./package.json
 COPY package-lock.json ./
@@ -38,6 +34,11 @@ RUN mkdir -p ./src/config
 # Check express.js endpoint
 HEALTHCHECK --interval=3s --timeout=30s --start-period=10s --retries=5 \
 	CMD curl --fail http://localhost:3000
+
+# Get version from outside since we can't get it from package.json
+# Has to be last beacuse it invalidates cache every time we change the version
+ARG VERSION=0.0.0
+ENV npm_package_version=$VERSION
 
 # Run npm start
 CMD ["npm", "start"]
