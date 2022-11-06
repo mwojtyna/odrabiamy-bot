@@ -62,6 +62,7 @@ export = {
 			);
 
 			if (
+				test.expectedErrorType &&
 				error &&
 				error.type !== ErrorType.UnhandledError &&
 				error.type !== test.expectedErrorType
@@ -73,7 +74,10 @@ export = {
 					\n-Expected error of type ${ErrorType[test.expectedErrorType!]}\`\`\``
 				);
 				results.set(i, false);
-			} else if (error?.type === ErrorType.UnhandledError) {
+			} else if (
+				error?.type === ErrorType.UnhandledError ||
+				(error && !test.expectedErrorType)
+			) {
 				await message?.edit(
 					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
 						ErrorType[error.type]
