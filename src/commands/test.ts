@@ -41,7 +41,7 @@ export = {
 		fs.copyFileSync(cookiesPath, cookiesBackupPath);
 
 		// Run tests
-		const results: boolean[] = [];
+		const results: Map<number, boolean> = new Map<number, boolean>();
 		for (let i = from; i < (from === to ? from + 1 : to + 1); i++) {
 			const test = tests[i];
 			const message = await interaction.channel?.send(
@@ -62,6 +62,7 @@ export = {
 			);
 
 			if (
+				test.expectedErrorType &&
 				error &&
 				error.type !== ErrorType.UnhandledError &&
 				error.type !== test.expectedErrorType
@@ -72,19 +73,22 @@ export = {
 					}:\n\n ${error.message}
 					\n-Expected error of type ${ErrorType[test.expectedErrorType!]}\`\`\``
 				);
-				results.push(false);
-			} else if (error?.type === ErrorType.UnhandledError) {
+				results.set(i, false);
+			} else if (
+				error?.type === ErrorType.UnhandledError ||
+				(error && !test.expectedErrorType)
+			) {
 				await message?.edit(
 					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
 						ErrorType[error.type]
 					}:\n\n ${error.message}\`\`\``
 				);
-				results.push(false);
+				results.set(i, false);
 			} else if (!error || error.type === test.expectedErrorType) {
 				await message?.edit(`\`\`\`diff\n+Test ${i} '${test.name}' passed.\`\`\``);
 				if (screenshots) await interaction.channel?.send({ files: screenshots });
 
-				results.push(true);
+				results.set(i, true);
 			}
 
 			if (test.logIn) {
@@ -97,10 +101,10 @@ export = {
 
 		// prettier-ignore
 		await interaction.channel?.send(
-			results.includes(false)
-				? `\`\`\`diff\n-Tests failed (id: ${results
-					.map((_, i) => i)
-					.filter(i => !results[i])
+			Array.from(results.values()).includes(false)
+				? `\`\`\`diff\n-Tests failed (id: ${Array.from(results.entries())
+					.map((pair) => pair[0])
+					.filter(i => !results.get(i))
 					.join(", ")}).\`\`\``
 				: "```diff\n+Tests passed.```"
 		);
