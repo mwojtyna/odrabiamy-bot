@@ -7,10 +7,10 @@ import dotenv from "dotenv";
 
 import { Command } from "./main";
 
-//** Run 'npx ts-node src/commands-deploy.ts' to register commands in prod guild */
+//** Run 'npx ts-node src/commands-deploy.ts' to register commands in dev guild */
 
 (async () => {
-	dotenv.config();
+	dotenv.config({ path: path.join(process.cwd(), ".env-dev") });
 
 	const files = fs
 		.readdirSync(path.join(__dirname, "commands"))
@@ -19,7 +19,6 @@ import { Command } from "./main";
 	const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [];
 	for (const file of files) {
 		const command = (await import(`./commands/${file}`)) as Command;
-		if (command.devOnly) continue;
 		commands.push(command.data.toJSON());
 	}
 
@@ -31,8 +30,8 @@ import { Command } from "./main";
 		await rest.put(Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID), {
 			body: commands
 		});
-		console.log(clc.green("Registered commands (prod guild)."));
+		console.log(clc.green("Registered commands (dev guild)."));
 	} catch (error) {
-		console.error(clc.red(`Error registering commands (prod guild):\n${error}`));
+		console.error(clc.red(`Error registering commands (dev guild):\n${error}`));
 	}
 })();

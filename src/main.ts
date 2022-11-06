@@ -8,10 +8,13 @@ import express from "express";
 
 export type Command = {
 	data: SlashCommandBuilder;
+	channels?: string[];
+	devOnly?: true;
 	execute: (interaction: CommandInteraction<CacheType>) => Promise<void>;
 };
 
 (async () => {
+	// Environment variables are already loaded in docker container
 	if (process.env.NODE_ENV === "development") dotenv.config({ path: ".env-dev" });
 
 	// Setup bot
@@ -29,7 +32,7 @@ export type Command = {
 	// Retrieve commands
 	const commands = new Collection<string, Command>();
 	const files = fs
-		.readdirSync(path.resolve(__dirname, "./commands"))
+		.readdirSync(path.join(__dirname, "commands"))
 		.filter(file => file.endsWith(".ts"));
 
 	for (const file of files) {
@@ -39,12 +42,16 @@ export type Command = {
 
 	// Execute commands
 	client.on("interactionCreate", async interaction => {
-		if (interaction.guildId !== process.env.GUILD_ID || !interaction.isCommand()) {
+		if (!interaction.isCommand()) {
 			return;
 		}
 
 		const command = commands.get(interaction.commandName);
 		if (!command) {
+			return;
+		}
+		if (command.channels && !command.channels.includes(interaction.channelId)) {
+			interaction.reply("Komenda nie jest dostępna w tym kanale!");
 			return;
 		}
 
