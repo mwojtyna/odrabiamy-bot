@@ -1,10 +1,12 @@
+import { ErrorType } from "./scrape";
+
 export interface Test {
 	name: string;
 	bookUrl: string;
 	page: number;
 	exercise: string;
 	trailingDot?: true;
-	expectHandledError?: true;
+	expectedErrorType?: ErrorType;
 	logIn?: true;
 }
 const tests: Test[] = [
@@ -53,28 +55,28 @@ const tests: Test[] = [
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 86,
 		exercise: "3.90",
-		expectHandledError: true
+		expectedErrorType: ErrorType.ExerciseNotFoundError
 	},
 	{
 		name: "Error: exercise not found (with dot)",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 292,
 		exercise: "6",
-		expectHandledError: true
+		expectedErrorType: ErrorType.ExerciseNotFoundError
 	},
 	{
 		name: "Error: exercise not found, but subexercises exist",
 		bookUrl: "jezyk-niemiecki/ksiazka-13067/",
 		page: 44,
 		exercise: "4",
-		expectHandledError: true
+		expectedErrorType: ErrorType.ExerciseNotFoundButSubexercisesFoundError
 	},
 	{
 		name: "Error: page not found",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 2921,
 		exercise: "6",
-		expectHandledError: true
+		expectedErrorType: ErrorType.PageNotFoundError
 	}
 ];
 

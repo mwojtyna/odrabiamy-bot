@@ -9,7 +9,7 @@ export = {
 	devOnly: true,
 
 	async execute(interaction: CommandInteraction<CacheType>) {
-		let out = "```diff\n";
+		let out = "```\n";
 		tests.forEach((test, i) => {
 			out += `${test.name} [${i}]\n`;
 		});

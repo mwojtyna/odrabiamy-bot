@@ -21,21 +21,24 @@ async function hardClick(element: ElementHandle<Element> | null, webPage: Page):
 	await webPage.keyboard.type("\n");
 }
 
-export class HandledError {
+export enum ErrorType {
+	UnhandledError,
+	PageNotFoundError,
+	ExerciseNotFoundError,
+	ExerciseNotFoundButSubexercisesFoundError
+}
+export class ScrapeError {
+	type: ErrorType;
 	message: string;
-	constructor(message: string) {
+	constructor(message: string, errorType: ErrorType) {
+		this.type = errorType;
 		this.message = message;
 	}
 }
-export class UnhandledError {
-	message: string;
-	constructor(message: string) {
-		this.message = message;
-	}
-}
+
 interface ScrapeResult {
 	screenshots?: string[];
-	error?: HandledError | UnhandledError;
+	error?: ScrapeError;
 }
 export async function scrape(
 	bookUrl: string,
@@ -116,7 +119,10 @@ export async function scrape(
 					await browser.close();
 					return {
 						// Has to be UnhandledError in order to fail tests
-						error: new UnhandledError("Wykryto captchę, nie można się zalogować")
+						error: new ScrapeError(
+							"Wykryto captchę, nie można się zalogować",
+							ErrorType.UnhandledError
+						)
 					};
 				} else {
 					// If not headless, wait for user to solve captcha
@@ -162,13 +168,16 @@ export async function scrape(
 				await browser.close();
 				return {
 					// Has to be UnhandledError in order to fail tests
-					error: new UnhandledError("Konto zostało tymczasowo zablokowane :(")
+					error: new ScrapeError(
+						"Konto zostało tymczasowo zablokowane :(",
+						ErrorType.UnhandledError
+					)
 				};
 			}
 
 			await browser.close();
 			return {
-				error: new HandledError(`Strona ${page} nie istnieje.`)
+				error: new ScrapeError(`Strona ${page} nie istnieje.`, ErrorType.PageNotFoundError)
 			};
 		}
 		console.log("10.a visits response");
@@ -191,23 +200,25 @@ export async function scrape(
 		const exerciseBtns = await webPage.$$(exerciseSelector);
 
 		if (exerciseBtns.length === 0) {
-			const similarExercises = await webPage.$$(`#qa-exercise-no-${exerciseParsed}a > a`);
-			if (similarExercises.length > 0) {
+			const subexercises = await webPage.$$(`#qa-exercise-no-${exerciseParsed}a > a`);
+			if (subexercises.length > 0) {
 				await browser.close();
 				return {
-					error: new HandledError(
+					error: new ScrapeError(
 						"Nie znaleziono zadania " +
 							exercise +
 							" na stronie " +
 							page +
-							", ale znaleziono podpunkty tego zadania."
+							", ale znaleziono podpunkty tego zadania.",
+						ErrorType.ExerciseNotFoundButSubexercisesFoundError
 					)
 				};
 			} else {
 				await browser.close();
 				return {
-					error: new HandledError(
-						"Nie znaleziono zadania " + exercise + " na stronie " + page + "."
+					error: new ScrapeError(
+						"Nie znaleziono zadania " + exercise + " na stronie " + page + ".",
+						ErrorType.ExerciseNotFoundError
 					)
 				};
 			}
@@ -249,7 +260,10 @@ export async function scrape(
 		aux = aux.join("\n");
 
 		return {
-			error: new UnhandledError("Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux)
+			error: new ScrapeError(
+				"Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux,
+				ErrorType.UnhandledError
+			)
 		};
 	}
 }

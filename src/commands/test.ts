@@ -5,7 +5,7 @@ import { scrape } from "../scrape";
 import fs from "fs-extra";
 import path from "path";
 
-import { HandledError, UnhandledError } from "../scrape";
+import { ErrorType } from "../scrape";
 import tests from "../tests";
 
 export = {
@@ -26,7 +26,7 @@ export = {
 	async execute(interaction: CommandInteraction<CacheType>) {
 		const from = (interaction.options.get("od")?.value ?? 0) as number;
 		const to = (interaction.options.get("do")?.value ?? tests.length - 1) as number;
-		const nonHeadless = (interaction.options.get("non-headless")?.value ?? true) as boolean;
+		const nonHeadless = (interaction.options.get("non-headless")?.value ?? false) as boolean;
 
 		if (to + 1 > tests.length) {
 			await interaction.reply("End index out of range.");
@@ -42,7 +42,7 @@ export = {
 
 		// Run tests
 		const results: boolean[] = [];
-		for (let i = from; i < (from === to ? from + 1 : tests.slice(from, to + 1).length); i++) {
+		for (let i = from; i < (from === to ? from + 1 : to + 1); i++) {
 			const test = tests[i];
 			const message = await interaction.channel?.send(
 				`\`Starting test ${i} '${test.name}'...\``
@@ -62,14 +62,25 @@ export = {
 			);
 
 			if (
-				error instanceof UnhandledError ||
-				(error instanceof HandledError && !test.expectHandledError)
+				error &&
+				error.type !== ErrorType.UnhandledError &&
+				error.type !== test.expectedErrorType
 			) {
 				await message?.edit(
-					`\`\`\`diff\n-Test ${i} '${test.name}' failed with error:\n\n ${error.message}\`\`\``
+					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
+						ErrorType[error.type]
+					}:\n\n ${error.message}
+					\n-Expected error of type ${ErrorType[test.expectedErrorType!]}\`\`\``
 				);
 				results.push(false);
-			} else if (!error || error instanceof HandledError) {
+			} else if (error?.type === ErrorType.UnhandledError) {
+				await message?.edit(
+					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
+						ErrorType[error.type]
+					}:\n\n ${error.message}\`\`\``
+				);
+				results.push(false);
+			} else if (!error || error.type === test.expectedErrorType) {
 				await message?.edit(`\`\`\`diff\n+Test ${i} '${test.name}' passed.\`\`\``);
 				if (screenshots) await interaction.channel?.send({ files: screenshots });
 
@@ -87,7 +98,7 @@ export = {
 		// prettier-ignore
 		await interaction.channel?.send(
 			results.includes(false)
-				? `\`\`\`diff\n-Tests failed (${results
+				? `\`\`\`diff\n-Tests failed (id: ${results
 					.map((_, i) => i)
 					.filter(i => !results[i])
 					.join(", ")}).\`\`\``
