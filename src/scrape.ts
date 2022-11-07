@@ -5,22 +5,6 @@ import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
 import path from "path";
 
-function getCurrentTime() {
-	const date = new Date();
-	return (
-		`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
-		`.${date.getMonth() + 1}.${date.getFullYear()}`
-	);
-}
-async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
-	// Sometimes built-in click() method doesn't work
-	// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
-	if (!element) return;
-
-	await element.focus();
-	await webPage.keyboard.type("\n");
-}
-
 export enum ErrorType {
 	UnhandledError,
 	PageNotFoundError,
@@ -266,4 +250,20 @@ export async function scrape(
 			)
 		};
 	}
+}
+
+function getCurrentTime() {
+	const date = new Date();
+	return (
+		`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
+		`.${date.getMonth() + 1}.${date.getFullYear()}`
+	);
+}
+async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
+	// Sometimes built-in click() method doesn't work
+	// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
+	if (!element) return;
+
+	await element.focus();
+	await webPage.keyboard.type("\n");
 }
