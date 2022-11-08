@@ -5,7 +5,7 @@ import path from "path";
 
 import { Command } from "../main";
 import { scrape } from "../scrape";
-import config from "../config/config.json";
+import config from "../config/config-dev.json";
 
 interface BookJSON {
 	url: string;
