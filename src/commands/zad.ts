@@ -5,7 +5,6 @@ import path from "path";
 
 import { Command } from "../main";
 import { scrape } from "../scrape";
-import config from "../config/config.json";
 
 interface BookJSON {
 	url: string;
@@ -37,6 +36,9 @@ export = {
 		isBeingUsed = true;
 
 		// Read values from command
+		const config = await import(
+			`../config/${process.env.NODE_ENV === "development" ? "config-dev" : "config"}.json`
+		);
 		const book = config[interaction.channelId as keyof typeof config] as BookJSON;
 		const page = interaction.options.get("strona")!.value as number;
 		const exercise = interaction.options.get("zadanie")!.value as string;
