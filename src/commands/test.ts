@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import path from "path";
 
 import { ErrorType } from "../scrape";
-import tests from "../tests";
+import tests from "../test-list";
 
 export = {
 	data: new SlashCommandBuilder()

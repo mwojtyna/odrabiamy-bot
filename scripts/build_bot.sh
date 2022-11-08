@@ -1,15 +1,16 @@
 #!/bin/bash
-BLUE='\033[0;34m'
+
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 ./scripts/remove_bot.sh
-docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
+
 if [[ "$VERSION" == *"-dev"* ]]; then
-	echo -e "${BLUE}Creating 'dev' image...${NC}"
+	docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
 	docker tag matijas05/odrabiamy-bot:$VERSION matijas05/odrabiamy-bot:dev
 else
-	echo -e "${BLUE}Creating 'latest' image...${NC}"
-	docker tag matijas05/odrabiamy-bot:$VERSION matijas05/odrabiamy-bot:latest
+	echo -e "${RED}Refused to create a non-development docker image.${NC}"
+	exit 1
 fi
 
 if [ "$1" == "--run" ]; then
