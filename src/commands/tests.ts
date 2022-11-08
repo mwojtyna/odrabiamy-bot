@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { CacheType, CommandInteraction } from "discord.js";
 import { Command } from "../main";
-import tests from "../tests";
+import tests from "../test-list";
 
 export = {
 	data: new SlashCommandBuilder().setName("tests").setDescription("Wyświetla listę testów"),
