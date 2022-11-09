@@ -166,7 +166,10 @@ export async function scrape(
 
 			await browser.close();
 			return {
-				error: new ScrapeError(`Strona ${page} nie istnieje.`, ErrorType.PageNotFoundError)
+				error: new ScrapeError(
+					`Strona ${page} nie istnieje. Jeśli taka strona istnieje w książce, możliwe jest że nie jest jeszcze rozwiązana w odrabiamy.pl`,
+					ErrorType.PageNotFoundError
+				)
 			};
 		}
 		console.log("10.a visits response");
