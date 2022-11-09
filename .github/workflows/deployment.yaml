@@ -21,18 +21,12 @@ jobs:
 
           VERSION=$(cat ./package.json | jq -r '.version')
           if [[ "$VERSION" =~ "-dev" ]]; then ROLLING_TAG="dev"; else ROLLING_TAG="latest"; fi
-          if [[ "$VERSION" =~ "-dev" ]]; then COMPOSE_SERVICE="dev"; else COMPOSE_SERVICE="prod"; fi
-          if [[ "$VERSION" =~ "-dev" ]]; then CONTAINER_NAME="odrabiamy-bot-dev"; else CONTAINER_NAME="odrabiamy-bot"; fi
 
           echo "VERSION: $VERSION"
           echo "ROLLING_TAG: $ROLLING_TAG"
-          echo "COMPOSE_SERVICE: $COMPOSE_SERVICE"
-          echo "CONTAINER_NAME: $CONTAINER_NAME"
 
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "ROLLING_TAG=$ROLLING_TAG" >> $GITHUB_OUTPUT
-          echo "COMPOSE_SERVICE=$COMPOSE_SERVICE" >> $GITHUB_OUTPUT
-          echo "CONTAINER_NAME=$CONTAINER_NAME" >> $GITHUB_OUTPUT
         id: dev_or_prod
 
       - name: Set up QEMU
@@ -54,8 +48,9 @@ jobs:
           push: true
           build-args: |
             VERSION=${{ steps.dev_or_prod.outputs.VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          context: .
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/odrabiamy-bot:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/odrabiamy-bot:buildcache,mode=max
 
       - name: Build and push image with '${{ steps.dev_or_prod.outputs.ROLLING_TAG }}' tag
         uses: docker/build-push-action@v3.2.0
@@ -64,8 +59,9 @@ jobs:
           push: true
           build-args: |
             VERSION=${{ steps.dev_or_prod.outputs.VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          context: .
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/odrabiamy-bot:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/odrabiamy-bot:buildcache,mode=max
 
   update-build:
     name: Update build on server
