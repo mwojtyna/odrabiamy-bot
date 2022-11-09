@@ -15,7 +15,8 @@ export type Command = {
 
 (async () => {
 	// Environment variables are already loaded in docker container
-	if (process.env.NODE_ENV === "development") dotenv.config({ path: ".env-dev" });
+	// On local connect to dev guild
+	if (process.env.NODE_ENV === "local") dotenv.config({ path: ".env-dev" });
 
 	// Setup bot
 	const client = new Client({ intents: "Guilds" });

@@ -43,7 +43,7 @@ export async function scrape(
 	const browser = await pup.use(stealthPlugin()).launch({
 		// devtools: true,
 		// slowMo: 100,
-		headless: headless || process.env.NODE_ENV === "production",
+		headless: headless || process.env.NODE_ENV === "server",
 		executablePath: executablePath(),
 		args: [
 			`--window-size=${width},${height}`,
