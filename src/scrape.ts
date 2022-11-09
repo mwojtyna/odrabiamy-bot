@@ -77,14 +77,19 @@ export async function scrape(
 		await webPage.goto(website);
 		console.log("3. website loaded");
 
-		// Allow cookies
-		const cookiesAcceptID = "#qa-rodo-accept";
-		const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID);
-		await hardClick(cookiesAccept, webPage);
-		await webPage.waitForSelector(cookiesAcceptID, {
-			hidden: true
-		});
-		console.log("4. cookies accepted");
+		try {
+			// Allow cookies
+			const cookiesAcceptID = "#qa-rodo-accept";
+			const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID, { timeout: 5000 });
+			await hardClick(cookiesAccept, webPage);
+			await webPage.waitForSelector(cookiesAcceptID, {
+				hidden: true
+			});
+			console.log("4. cookies accepted");
+		} catch (error) {
+			// Do nothing if cookies accept is not showing up
+			false;
+		}
 
 		// Login if not logged in or cookies expired
 		console.log("5. url: " + webPage.url());
