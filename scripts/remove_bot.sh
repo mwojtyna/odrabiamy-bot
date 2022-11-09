@@ -2,11 +2,11 @@
 
 RED='\033[0;31m'
 NC='\033[0m' # No Color
-
-docker container rm -f odrabiamy-bot
-docker image rm -f matijas05/odrabiamy-bot:$VERSION
+VERSION=$(jq -r '.version' package.json)
 
 if [[ "$VERSION" == *"-dev"* ]]; then
+	docker container rm -f odrabiamy-bot
+	docker image rm -f matijas05/odrabiamy-bot:$VERSION
 	docker image rm -f matijas05/odrabiamy-bot:dev
 else
 	echo -e "${RED}Refused to remove a non-development docker image.${NC}"

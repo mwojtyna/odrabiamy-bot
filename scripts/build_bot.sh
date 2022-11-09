@@ -4,6 +4,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 ./scripts/remove_bot.sh
+VERSION=$(jq -r '.version' package.json)
 
 if [[ "$VERSION" == *"-dev"* ]]; then
 	docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .

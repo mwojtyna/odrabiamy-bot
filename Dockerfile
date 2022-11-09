@@ -18,7 +18,7 @@ RUN apt-get install -y fonts-noto-color-emoji
 # Set environment variables
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV NODE_ENV=production
+ENV NODE_ENV=server
 
 # Install packages
 COPY --from=deps /tmp/deps.json ./package.json

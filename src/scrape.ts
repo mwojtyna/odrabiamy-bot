@@ -43,7 +43,7 @@ export async function scrape(
 	const browser = await pup.use(stealthPlugin()).launch({
 		// devtools: true,
 		// slowMo: 100,
-		headless: headless || process.env.NODE_ENV === "production",
+		headless: headless || process.env.NODE_ENV === "server",
 		executablePath: executablePath(),
 		args: [
 			`--window-size=${width},${height}`,
@@ -77,14 +77,19 @@ export async function scrape(
 		await webPage.goto(website);
 		console.log("3. website loaded");
 
-		// Allow cookies
-		const cookiesAcceptID = "#qa-rodo-accept";
-		const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID);
-		await hardClick(cookiesAccept, webPage);
-		await webPage.waitForSelector(cookiesAcceptID, {
-			hidden: true
-		});
-		console.log("4. cookies accepted");
+		try {
+			// Allow cookies
+			const cookiesAcceptID = "#qa-rodo-accept";
+			const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID, { timeout: 5000 });
+			await hardClick(cookiesAccept, webPage);
+			await webPage.waitForSelector(cookiesAcceptID, {
+				hidden: true
+			});
+			console.log("4. cookies accepted");
+		} catch (error) {
+			// Do nothing if cookies accept is not showing up
+			false;
+		}
 
 		// Login if not logged in or cookies expired
 		console.log("5. url: " + webPage.url());
@@ -161,7 +166,10 @@ export async function scrape(
 
 			await browser.close();
 			return {
-				error: new ScrapeError(`Strona ${page} nie istnieje.`, ErrorType.PageNotFoundError)
+				error: new ScrapeError(
+					`Strona ${page} nie istnieje. Jeśli taka strona istnieje w książce, możliwe jest że nie jest jeszcze rozwiązana w odrabiamy.pl`,
+					ErrorType.PageNotFoundError
+				)
 			};
 		}
 		console.log("10.a visits response");
