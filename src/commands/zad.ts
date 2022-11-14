@@ -65,7 +65,8 @@ export = {
 			page,
 			exercise,
 			!!book.trailingDot,
-			interaction
+			interaction,
+			process.env.NODE_ENV === "server"
 		);
 
 		if (error) {
