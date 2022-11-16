@@ -179,7 +179,11 @@ export async function scrape(
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
-		if (exerciseParsed.charAt(exerciseParsed.length - 1) === "." && !trailingDot)
+		if (
+			exerciseParsed.charAt(exerciseParsed.length - 1) === "." &&
+			exerciseParsed.charAt(exerciseParsed.length - 2) !== "." &&
+			!trailingDot
+		)
 			exerciseParsed = exerciseParsed.slice(0, -1);
 		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && trailingDot)
 			exerciseParsed += ".";
