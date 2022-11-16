@@ -11,7 +11,6 @@ export interface Test {
 }
 const tests: Test[] = [
 	// Normal cases
-	{ name: "Normal exercise", bookUrl: "matematyka/ksiazka-13007/", page: 292, exercise: "1" },
 	{
 		name: "Normal exercise (login)",
 		bookUrl: "matematyka/ksiazka-13007/",
@@ -19,6 +18,7 @@ const tests: Test[] = [
 		exercise: "1",
 		logIn: true
 	},
+	{ name: "Normal exercise", bookUrl: "matematyka/ksiazka-13007/", page: 292, exercise: "1" },
 	{
 		name: "Exercise with dot",
 		bookUrl: "matematyka/ksiazka-13128/",
