@@ -192,11 +192,7 @@ export async function scrape(
 				await browser.close();
 				return {
 					error: new ScrapeError(
-						"Nie znaleziono zadania " +
-							exercise +
-							" na stronie " +
-							page +
-							", ale znaleziono podpunkty tego zadania.",
+						`Nie znaleziono zadanie ${exercise} na stronie ${page}, ale znaleziono podpunkty tego zadania (np. ${exercise}a).`,
 						ErrorType.ExerciseNotFoundButSubexercisesFoundError
 					)
 				};
@@ -204,7 +200,7 @@ export async function scrape(
 				await browser.close();
 				return {
 					error: new ScrapeError(
-						"Nie znaleziono zadania " + exercise + " na stronie " + page + ".",
+						`Nie znaleziono zadania ${exercise} na stronie ${page}`,
 						ErrorType.ExerciseNotFoundError
 					)
 				};
