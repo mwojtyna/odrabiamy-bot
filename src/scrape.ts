@@ -10,7 +10,8 @@ export enum ErrorType {
 	UnhandledError,
 	PageNotFoundError,
 	ExerciseNotFoundError,
-	ExerciseNotFoundButSubexercisesFoundError
+	ExerciseNotFoundButSubexercisesFoundError,
+	IndividualExerciseError
 }
 export class ScrapeError {
 	type: ErrorType;
@@ -192,6 +193,15 @@ export async function scrape(
 		// Select exercise and take screenshots
 		const exerciseSelector = `[id='qa-exercise-no-${exerciseParsed}'] > a`;
 		const exerciseBtns = await webPage.$$(exerciseSelector);
+		const individualExerciseBtns = await async.filter(exerciseBtns, async btn => {
+			const paragraphs = await btn.$$("p");
+			const individualText = await async.filter(paragraphs, async p => {
+				const innerText = await p.evaluate(node => node.innerText);
+				return innerText.includes("Indywidualne");
+			});
+
+			return individualText.length > 0;
+		});
 
 		if (exerciseBtns.length === 0) {
 			const subexercises = await webPage.$$(`[id^='qa-exercise-no-${exerciseParsed}']`);
@@ -225,6 +235,19 @@ export async function scrape(
 
 		const screenshotNames: string[] = [];
 		for (let i = 0; i < exerciseBtns.length; i++) {
+			// Skip individual exercises
+			if (exerciseBtns.length === 1 && individualExerciseBtns.length === 1) {
+				await browser.close();
+				return {
+					error: new ScrapeError(
+						`Zadanie ${exercise} na stronie ${page} jest do rozwiązania indywidualnego. Nie ma rozwiązania w odrabiamy.pl`,
+						ErrorType.IndividualExerciseError
+					)
+				};
+			} else if (individualExerciseBtns.includes(exerciseBtns[i])) {
+				continue;
+			}
+
 			// Only this click works
 			await webPage.$$eval(
 				exerciseSelector,
