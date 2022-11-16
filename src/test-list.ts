@@ -83,6 +83,13 @@ const tests: Test[] = [
 		page: 2921,
 		exercise: "6",
 		expectedErrorType: ErrorType.PageNotFoundError
+	},
+	{
+		name: "Error: individual exercise",
+		bookUrl: "jezyk-niemiecki/ksiazka-11861/",
+		page: 28,
+		exercise: "2b",
+		expectedErrorType: ErrorType.IndividualExerciseError
 	}
 ];
 
