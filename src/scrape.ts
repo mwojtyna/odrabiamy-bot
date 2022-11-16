@@ -172,8 +172,10 @@ export async function scrape(
 			};
 		}
 		console.log("10.a visits response");
+		await webPage.waitForResponse(response => response.url().includes("exercises"));
+		console.log("10.b exercises response");
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		console.log("10.b 2nd visits response");
+		console.log("10.c 2nd visits response");
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
