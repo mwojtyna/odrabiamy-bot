@@ -87,8 +87,7 @@ export async function scrape(
 			});
 			console.log("4. cookies accepted");
 		} catch (error) {
-			// Do nothing if cookies accept is not showing up
-			false;
+			console.log("4. cookies accept not found");
 		}
 
 		// Login if not logged in or cookies expired
