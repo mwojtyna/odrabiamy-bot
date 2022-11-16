@@ -167,7 +167,7 @@ export async function scrape(
 			await browser.close();
 			return {
 				error: new ScrapeError(
-					`Strona ${page} nie istnieje. Jeśli taka strona istnieje w książce, możliwe jest że nie jest jeszcze rozwiązana w odrabiamy.pl`,
+					`Nie znaleziono zadań na stronie ${page}. Jeśli w książce na takiej stronie znajdują się zadania, możliwe jest, że nie są jeszcze rozwiązane w odrabiamy.pl`,
 					ErrorType.PageNotFoundError
 				)
 			};
