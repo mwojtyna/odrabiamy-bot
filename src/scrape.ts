@@ -4,6 +4,7 @@ import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
 import path from "path";
+import async from "async";
 
 export enum ErrorType {
 	UnhandledError,
@@ -193,12 +194,19 @@ export async function scrape(
 		const exerciseBtns = await webPage.$$(exerciseSelector);
 
 		if (exerciseBtns.length === 0) {
-			const subexercises = await webPage.$$(`[id='qa-exercise-no-${exerciseParsed}a'] > a`);
+			const subexercises = await webPage.$$(`[id^='qa-exercise-no-${exerciseParsed}']`);
+			const ids = await async.map(subexercises, async (btn: ElementHandle<Element>) => {
+				const id = await btn.evaluate(node => node.id);
+				return id.split(exerciseParsed)[1];
+			});
+
 			if (subexercises.length > 0) {
 				await browser.close();
 				return {
 					error: new ScrapeError(
-						`Nie znaleziono zadanie ${exercise} na stronie ${page}, ale znaleziono podpunkty tego zadania (np. ${exercise}a).`,
+						`Nie znaleziono zadania ${exercise} na stronie ${page}, ale znaleziono podpunkt${
+							ids.length > 1 ? "y" : ""
+						} ${ids.join(", ")} tego zadania.`,
 						ErrorType.ExerciseNotFoundButSubexercisesFoundError
 					)
 				};
