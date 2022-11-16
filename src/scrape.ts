@@ -173,10 +173,8 @@ export async function scrape(
 			};
 		}
 		console.log("10.a visits response");
-		await webPage.waitForResponse(response => response.url().includes("exercises"));
-		console.log("10.b exercises response");
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		console.log("10.c visits response");
+		console.log("10.b 2nd visits response");
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
@@ -185,14 +183,12 @@ export async function scrape(
 		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && trailingDot)
 			exerciseParsed += ".";
 
-		exerciseParsed = exerciseParsed.replaceAll(".", "\\.");
-
 		// Select exercise and take screenshots
-		const exerciseSelector = `#qa-exercise-no-${exerciseParsed} > a`;
+		const exerciseSelector = `[id='qa-exercise-no-${exerciseParsed}'] > a`;
 		const exerciseBtns = await webPage.$$(exerciseSelector);
 
 		if (exerciseBtns.length === 0) {
-			const subexercises = await webPage.$$(`#qa-exercise-no-${exerciseParsed}a > a`);
+			const subexercises = await webPage.$$(`[id='qa-exercise-no-${exerciseParsed}a'] > a`);
 			if (subexercises.length > 0) {
 				await browser.close();
 				return {

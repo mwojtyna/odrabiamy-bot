@@ -47,7 +47,7 @@ export = {
 			isBeingUsed = false;
 			return;
 		}
-		if (/[~!@$%^&*()+=,/';:"?><[\]\\{}|`#]/gm.test(exercise)) {
+		if (/[~!@$%^&*()+=,/';:"><[\]\\{}|`#]/gm.test(exercise)) {
 			await interaction.reply("Błędny numer zadania!");
 			isBeingUsed = false;
 			return;
