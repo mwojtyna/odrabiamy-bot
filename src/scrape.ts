@@ -254,8 +254,12 @@ export async function scrape(
 			console.log("11. clicked exercise button " + i);
 
 			// Wait for the solution to load
+			if (i > 0) {
+				await webPage.waitForResponse(response => response.url().includes("exercises"));
+				console.log("12.a exercises response");
+			}
 			await webPage.waitForResponse(response => response.url().includes("visits"));
-			console.log("12. exercise loaded");
+			console.log("12.b solution loaded");
 
 			const screenshotName = `screenshots/screen-${i}.jpg`;
 			screenshotNames.push(screenshotName);
