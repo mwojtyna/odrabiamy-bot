@@ -217,7 +217,7 @@ export async function scrape(
 					error: new ScrapeError(
 						`Nie znaleziono zadania ${exercise} na stronie ${page}, ale znaleziono podpunkt${
 							ids.length > 1 ? "y" : ""
-						} ${ids.join(", ")} tego zadania.`,
+						} ${ids.join(", ")} tego zadania`,
 						ErrorType.ExerciseNotFoundButSubexercisesFoundError
 					)
 				};

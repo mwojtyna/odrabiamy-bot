@@ -62,7 +62,6 @@ export = {
 			);
 
 			if (
-				test.expectedErrorType &&
 				error &&
 				error.type !== ErrorType.UnhandledError &&
 				error.type !== test.expectedErrorType
@@ -70,8 +69,20 @@ export = {
 				await message?.edit(
 					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
 						ErrorType[error.type]
-					}:\n\n ${error.message}
+					}:\n\n${error.message}
 					\n-Expected error of type ${ErrorType[test.expectedErrorType!]}\`\`\``
+				);
+				results.set(i, false);
+			} else if (
+				error &&
+				error.type === test.expectedErrorType &&
+				error.message !== test.expectedErrorMessage
+			) {
+				await message?.edit(
+					`\`\`\`diff\n-Test ${i} '${test.name}' failed with message
+					\n'${error.message}'
+					\n-Expected error message:
+					\n'${test.expectedErrorMessage}'\`\`\``
 				);
 				results.set(i, false);
 			} else if (
@@ -81,7 +92,7 @@ export = {
 				await message?.edit(
 					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
 						ErrorType[error.type]
-					}:\n\n ${error.message}\`\`\``
+					}:\n\n${error.message}\`\`\``
 				);
 				results.set(i, false);
 			} else if (!error || error.type === test.expectedErrorType) {

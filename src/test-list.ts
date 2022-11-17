@@ -6,8 +6,9 @@ export interface Test {
 	page: number;
 	exercise: string;
 	trailingDot?: true;
-	expectedErrorType?: ErrorType;
 	logIn?: true;
+	expectedErrorType?: ErrorType;
+	expectedErrorMessage?: string;
 }
 const tests: Test[] = [
 	// Normal cases
@@ -61,35 +62,43 @@ const tests: Test[] = [
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 86,
 		exercise: "3.90",
-		expectedErrorType: ErrorType.ExerciseNotFoundError
+		expectedErrorType: ErrorType.ExerciseNotFoundError,
+		expectedErrorMessage: "Nie znaleziono zadania 3.90 na stronie 86"
 	},
 	{
 		name: "Error: exercise not found (with dot)",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 292,
 		exercise: "6",
-		expectedErrorType: ErrorType.ExerciseNotFoundError
+		expectedErrorType: ErrorType.ExerciseNotFoundError,
+		expectedErrorMessage: "Nie znaleziono zadania 6 na stronie 292"
 	},
 	{
 		name: "Error: exercise not found, but subexercises exist",
 		bookUrl: "jezyk-niemiecki/ksiazka-13067/",
 		page: 44,
 		exercise: "4",
-		expectedErrorType: ErrorType.ExerciseNotFoundButSubexercisesFoundError
+		expectedErrorType: ErrorType.ExerciseNotFoundButSubexercisesFoundError,
+		expectedErrorMessage:
+			"Nie znaleziono zadania 4 na stronie 44, ale znaleziono podpunkt a tego zadania"
 	},
 	{
 		name: "Error: page not found",
 		bookUrl: "matematyka/ksiazka-13007/",
 		page: 2921,
 		exercise: "6",
-		expectedErrorType: ErrorType.PageNotFoundError
+		expectedErrorType: ErrorType.PageNotFoundError,
+		expectedErrorMessage:
+			"Nie znaleziono zadań na stronie 2921. Jeśli w książce na takiej stronie znajdują się zadania, możliwe jest, że nie są jeszcze rozwiązane w odrabiamy.pl"
 	},
 	{
 		name: "Error: individual exercise",
 		bookUrl: "jezyk-niemiecki/ksiazka-11861/",
 		page: 28,
 		exercise: "2b",
-		expectedErrorType: ErrorType.IndividualExerciseError
+		expectedErrorType: ErrorType.IndividualExerciseError,
+		expectedErrorMessage:
+			"Zadanie 2b na stronie 28 jest do rozwiązania indywidualnego. Nie ma rozwiązania w odrabiamy.pl"
 	}
 ];
 
