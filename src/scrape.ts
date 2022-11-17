@@ -249,11 +249,7 @@ export async function scrape(
 			}
 
 			// Only this click works
-			await webPage.$$eval(
-				exerciseSelector,
-				(elements, i) => (elements[i] as HTMLElement).click(),
-				i
-			);
+			await exerciseBtns[i].evaluate(node => (node as HTMLElement).click());
 			console.log("11. clicked exercise button " + i);
 
 			// Wait for the solution to load
