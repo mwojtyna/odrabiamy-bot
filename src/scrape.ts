@@ -5,6 +5,7 @@ import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
 import path from "path";
 import async from "async";
+import timestamp from "time-stamp";
 
 export enum ErrorType {
 	UnhandledError,
@@ -34,7 +35,7 @@ export async function scrape(
 	interaction: CommandInteraction<CacheType>,
 	headless: boolean
 ): Promise<ScrapeResult> {
-	console.log(`\n------ ${getCurrentTime()} ------`);
+	console.log(`\n------ ${timestamp("HH:mm:ss, DD.MM.YYYY")} ------`);
 
 	// Setup browser
 	const width = 1200;
@@ -266,7 +267,7 @@ export async function scrape(
 
 		await browser.close();
 		console.log("14. browser closed");
-		console.log(`Completed at: ${getCurrentTime()}`);
+		console.log(`Completed at: ${timestamp("HH:mm:ss, DD.MM.YYYY")}`);
 		return { screenshots: screenshotNames };
 	} catch (err: any) {
 		await browser.close();
@@ -284,13 +285,6 @@ export async function scrape(
 	}
 }
 
-function getCurrentTime() {
-	const date = new Date();
-	return (
-		`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
-		`.${date.getMonth() + 1}.${date.getFullYear()}`
-	);
-}
 async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
 	// Sometimes built-in click() method doesn't work
 	// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
