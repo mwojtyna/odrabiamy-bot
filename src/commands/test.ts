@@ -111,6 +111,9 @@ export = {
 		// Restore cookies
 		fs.moveSync(cookiesBackupPath, cookiesPath, { overwrite: true });
 
+		// Remove screenshots
+		fs.emptyDirSync(path.join(process.cwd(), "screenshots"));
+
 		// prettier-ignore
 		await interaction.channel?.send(
 			Array.from(results.values()).includes(false)
