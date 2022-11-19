@@ -19,6 +19,12 @@ export = {
 				.setName("non-headless")
 				.setDescription("Otwórz w oknie graficznym")
 				.setRequired(false)
+		)
+		.addBooleanOption(option =>
+			option
+				.setName("throttle-network")
+				.setDescription("Symuluj słaby internet")
+				.setRequired(false)
 		),
 	channels: ["1037012798850486366"],
 	devOnly: true,
@@ -27,6 +33,8 @@ export = {
 		const from = (interaction.options.get("od")?.value ?? 0) as number;
 		const to = (interaction.options.get("do")?.value ?? tests.length - 1) as number;
 		const nonHeadless = (interaction.options.get("non-headless")?.value ?? false) as boolean;
+		const throttleNetwork = (interaction.options.get("throttle-network")?.value ??
+			false) as boolean;
 
 		if (to + 1 > tests.length) {
 			await interaction.reply("End index out of range.");
@@ -59,7 +67,7 @@ export = {
 				!!test.trailingDot,
 				interaction,
 				!nonHeadless,
-				!!test.throttleNetwork
+				!!test.throttleNetwork || throttleNetwork
 			);
 
 			if (
