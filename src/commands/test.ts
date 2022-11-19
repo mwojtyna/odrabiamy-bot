@@ -63,6 +63,7 @@ export = {
 
 			if (
 				error &&
+				test.expectedErrorType &&
 				error.type !== ErrorType.UnhandledError &&
 				error.type !== test.expectedErrorType
 			) {
