@@ -7,6 +7,7 @@ export interface Test {
 	exercise: string;
 	trailingDot?: true;
 	logIn?: true;
+	throttleNetwork?: true;
 	expectedErrorType?: ErrorType;
 	expectedErrorMessage?: string;
 }
@@ -35,6 +36,13 @@ const tests: Test[] = [
 	{ name: "Very long exercise", bookUrl: "matematyka/ksiazka-13007/", page: 293, exercise: "6" },
 	{ name: "Two exercises", bookUrl: "matematyka/ksiazka-13007/", page: 264, exercise: "3" },
 	{ name: "Hard to load", bookUrl: "geografia/ksiazka-13105/", page: 12, exercise: "1" },
+	{
+		name: "Throttled network",
+		bookUrl: "matematyka/ksiazka-13007/",
+		page: 137,
+		exercise: "7",
+		throttleNetwork: true
+	},
 	{
 		name: "Trailing dot (no dot)",
 		bookUrl: "fizyka/ksiazka-12009/",

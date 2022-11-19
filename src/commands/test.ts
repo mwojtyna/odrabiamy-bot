@@ -58,7 +58,8 @@ export = {
 				test.exercise,
 				!!test.trailingDot,
 				interaction,
-				!nonHeadless
+				!nonHeadless,
+				!!test.throttleNetwork
 			);
 
 			if (

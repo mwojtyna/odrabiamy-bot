@@ -33,7 +33,8 @@ export async function scrape(
 	exercise: string,
 	trailingDot: boolean,
 	interaction: CommandInteraction<CacheType>,
-	headless: boolean
+	headless: boolean,
+	throttleNetwork?: boolean
 ): Promise<ScrapeResult> {
 	console.log(`\n------ ${timestamp("HH:mm:ss, DD.MM.YYYY")} ------`);
 
@@ -67,6 +68,17 @@ export async function scrape(
 	try {
 		// Load page
 		const [webPage] = await browser.pages();
+
+		// Simulate bad internet for tests
+		if (throttleNetwork) {
+			const client = await webPage.target().createCDPSession();
+			await client.send("Network.emulateNetworkConditions", {
+				offline: false,
+				downloadThroughput: (450 * 1024) / 8,
+				uploadThroughput: (150 * 1024) / 8,
+				latency: 150
+			});
+		}
 
 		// Load cookies
 		if (fs.existsSync(cookiesPath)) {
@@ -176,7 +188,7 @@ export async function scrape(
 			};
 		}
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		console.log("10.b 2nd visits response");
+		console.log("10.b visits response");
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
