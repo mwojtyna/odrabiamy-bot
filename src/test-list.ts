@@ -55,6 +55,18 @@ const tests: Test[] = [
 		page: 86,
 		exercise: "3.71"
 	},
+	{
+		name: "Exercise with more than 1 trailing dot",
+		bookUrl: "jezyk-niemiecki/ksiazka-11861/",
+		page: 95,
+		exercise: "Höre..."
+	},
+	{
+		name: "Exercise with a question mark",
+		bookUrl: "biologia/ksiazka-12997/",
+		page: 85,
+		exercise: "? Pomyśl"
+	},
 
 	// Errors
 	{
