@@ -150,9 +150,10 @@ export async function scrape(
 
 		// Wait for exercises to load
 		try {
-			await webPage.waitForResponse(response => response.url().includes("visits"), {
+			await webPage.waitForResponse(response => response.url().includes("exercises"), {
 				timeout: 5000
 			});
+			console.log("10.a exercises response");
 		} catch (error) {
 			// If exercises don't load, check if account is not blocked
 			if (await webPage.$("#qa-premium-blockade")) {
@@ -174,11 +175,8 @@ export async function scrape(
 				)
 			};
 		}
-		console.log("10.a visits response");
-		await webPage.waitForResponse(response => response.url().includes("exercises"));
-		console.log("10.b exercises response");
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		console.log("10.c 2nd visits response");
+		console.log("10.b 2nd visits response");
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
@@ -191,7 +189,7 @@ export async function scrape(
 		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && trailingDot)
 			exerciseParsed += ".";
 
-		// Select exercise and take screenshots
+		// Find exercise buttons
 		const exerciseSelector = `[id='qa-exercise-no-${exerciseParsed}'] > a`;
 		const exerciseBtns = await webPage.$$(exerciseSelector);
 		const individualExerciseBtns = await async.filter(exerciseBtns, async btn => {
@@ -234,9 +232,10 @@ export async function scrape(
 
 		console.log("10. found exercise buttons");
 
+		// Screenshot each exercise solution
 		const screenshotNames: string[] = [];
 		for (let i = 0; i < exerciseBtns.length; i++) {
-			// Skip individual exercises
+			// Skip 'individual' exercises
 			if (exerciseBtns.length === 1 && individualExerciseBtns.length === 1) {
 				await browser.close();
 				return {
@@ -261,11 +260,25 @@ export async function scrape(
 			await webPage.waitForResponse(response => response.url().includes("visits"));
 			console.log("12.b solution loaded");
 
+			// Wait for images to load
+			const solutionElement = await webPage.$("#qa-exercise");
+			await solutionElement!.$$eval("img", async imgs => {
+				await Promise.all(
+					imgs.map(img => {
+						if (img.complete) return;
+						return new Promise((resolve, reject) => {
+							img.addEventListener("load", resolve);
+							img.addEventListener("error", reject);
+						});
+					})
+				);
+			});
+			console.log("12.c images loaded");
+
 			const screenshotName = `screenshots/screen-${i}.jpg`;
 			screenshotNames.push(screenshotName);
 
-			const solutionElement = (await webPage.$("#qa-exercise"))!;
-			await solutionElement.screenshot({ path: screenshotName });
+			await solutionElement!.screenshot({ path: screenshotName });
 			console.log("13. took screenshot");
 		}
 
