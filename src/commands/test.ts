@@ -46,6 +46,11 @@ export = {
 		// Backup cookies
 		const cookiesPath = path.join(process.cwd(), "src/config/cookies.json");
 		const cookiesBackupPath = path.join(process.cwd(), "src/config/cookies.json.bak");
+
+		// Avoid error when previous test was interrupted
+		if (!fs.existsSync(cookiesPath) && fs.existsSync(cookiesBackupPath)) {
+			fs.renameSync(cookiesBackupPath, cookiesPath);
+		}
 		fs.copyFileSync(cookiesPath, cookiesBackupPath);
 
 		// Run tests
