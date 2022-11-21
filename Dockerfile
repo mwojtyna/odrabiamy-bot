@@ -23,7 +23,7 @@ ENV NODE_ENV=server
 # Install packages
 COPY --from=deps /tmp/deps.json ./package.json
 COPY package-lock.json ./
-RUN npm i
+RUN npm i --omit=dev
 
 # Copy required files to /app
 COPY tsconfig.json ./
