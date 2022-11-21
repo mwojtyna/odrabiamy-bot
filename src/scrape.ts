@@ -332,5 +332,5 @@ async function hardClick(element: ElementHandle<Element> | null, webPage: Page):
 	await webPage.keyboard.type("\n");
 }
 function log(msg: string, timer: [number, number]): void {
-	console.log(`[${process.hrtime(timer).join(".")}] ${msg}`);
+	console.log(`[${parseFloat(process.hrtime(timer).join(".")).toFixed(3)}] ${msg}`);
 }

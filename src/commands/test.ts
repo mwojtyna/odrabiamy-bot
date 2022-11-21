@@ -75,8 +75,8 @@ export = {
 				!nonHeadless,
 				!!test.throttleNetwork || throttleNetwork
 			);
-			const time = process.hrtime(timer);
-			console.log(`Took ${time.join(".")} seconds`);
+			const time = parseFloat(process.hrtime(timer).join(".")).toFixed(3);
+			console.log(`Took ${time} seconds`);
 
 			if (
 				error &&
@@ -115,9 +115,7 @@ export = {
 				results.set(i, false);
 			} else if (!error || error.type === test.expectedErrorType) {
 				await message?.edit(
-					`\`\`\`diff\n+Test ${i} '${test.name}' passed (took ${time.join(
-						"."
-					)} seconds).\`\`\``
+					`\`\`\`diff\n+Test ${i} '${test.name}' passed (took ${time} seconds).\`\`\``
 				);
 				if (screenshots) await interaction.channel?.send({ files: screenshots });
 
