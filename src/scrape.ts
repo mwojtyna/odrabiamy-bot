@@ -155,12 +155,13 @@ export async function scrape(
 			popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']", {
 				timeout: 5000
 			});
+			log("7.a popup found", timer);
 		} catch (error) {
 			log("7. didn't find popup to close", timer);
 		}
 		if (popupCloseElement) {
-			popupCloseElement.evaluate(node => (node as HTMLButtonElement).click());
-			log("7. popup closed", timer);
+			await popupCloseElement.evaluate(node => (node as HTMLButtonElement).click());
+			log("7.b popup closed", timer);
 		}
 
 		// Go to correct page
