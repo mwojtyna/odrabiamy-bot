@@ -9,8 +9,5 @@
 			"ES2021"
 		],
 		"resolveJsonModule": true
-	},
-	"ts-node": {
-		"files": true
 	}
 }
