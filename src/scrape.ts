@@ -52,13 +52,21 @@ export async function scrape(
 		args: [
 			`--window-size=${width},${height}`,
 			"--no-sandbox",
-			// "--disable-setuid-sandbox",
-			// "--disable-dev-shm-usage",
-			// "--disable-accelerated-2d-canvas",
-			// "--no-first-run",
-			// "--no-zygote",
+			"--disable-canvas-aa",
+			"--disable-2d-canvas-clip-aa",
+			"--disable-gl-drawing-for-tests",
+			"--disable-dev-shm-usage",
+			"--no-zygote",
+			"--use-gl=desktop",
+			"--enable-webgl",
+			"--hide-scrollbars",
+			"--mute-audio",
+			"--no-first-run",
+			"--disable-infobars",
+			"--disable-breakpad",
+			"--disable-setuid-sandbox",
+			"--disable-gpu",
 			process.platform === "linux" && process.arch === "arm64" ? "--single-process" : ""
-			// "--disable-gpu"
 		],
 		defaultViewport: { width: width, height: height }
 	});

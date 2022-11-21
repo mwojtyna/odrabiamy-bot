@@ -9,15 +9,18 @@
 		"**/node_modules": true
 	},
 	"cSpell.words": [
+		"breakpad",
 		"buildcache",
 		"Buildx",
 		"captchę",
 		"Höre",
 		"imageselect",
+		"infobars",
 		"jezyk",
 		"ksiazka",
 		"Subexercise",
 		"subexercises",
-		"subpoints"
+		"subpoints",
+		"swiftshader"
 	]
 }
