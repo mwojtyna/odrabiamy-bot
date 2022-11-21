@@ -66,7 +66,6 @@ export async function scrape(
 			"--disable-infobars",
 			"--disable-breakpad",
 			"--disable-setuid-sandbox",
-			"--disable-gpu",
 			process.platform === "linux" && process.arch === "arm64" ? "--single-process" : ""
 		],
 		defaultViewport: { width: width, height: height }
@@ -99,7 +98,7 @@ export async function scrape(
 			log("2. cookies loaded: " + cookiesPath, timer);
 		}
 		await webPage.goto(website);
-		log("3. website loaded", timer);
+		log("3. website loaded: " + webPage.url(), timer);
 
 		try {
 			// Allow cookies
@@ -115,7 +114,6 @@ export async function scrape(
 		}
 
 		// Login if not logged in or cookies expired
-		log("5. url: " + webPage.url(), timer);
 		if (webPage.url() !== "https://odrabiamy.pl/moje") {
 			await webPage.click("[data-testid='login-button']");
 			await webPage.waitForNavigation();
@@ -143,12 +141,12 @@ export async function scrape(
 			}
 
 			interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
-			log("6. logged in", timer);
+			log("5. logged in", timer);
 
 			// Save cookies after login
 			const cookies = await webPage.cookies();
 			fs.writeFile(cookiesPath, JSON.stringify(cookies, null, 2));
-			log("7. cookies saved", timer);
+			log("6. cookies saved", timer);
 		}
 
 		// Close any pop-ups
@@ -158,23 +156,23 @@ export async function scrape(
 				timeout: 5000
 			});
 		} catch (error) {
-			log("8. didn't find popup to close", timer);
+			log("7. didn't find popup to close", timer);
 		}
 		if (popupCloseElement) {
 			popupCloseElement.evaluate(node => (node as HTMLButtonElement).click());
-			log("8. popup closed", timer);
+			log("7. popup closed", timer);
 		}
 
 		// Go to correct page
 		await webPage.goto(website + bookUrl + `strona-${page}`);
-		log("9. changed page: " + webPage.url(), timer);
+		log("8. changed page: " + webPage.url(), timer);
 
 		// Wait for exercises to load
 		try {
 			await webPage.waitForResponse(response => response.url().includes("exercises"), {
 				timeout: 5000
 			});
-			log("10.a exercises response", timer);
+			log("9.a exercises response", timer);
 		} catch (error) {
 			// If exercises don't load, check if account is not blocked
 			if (await webPage.$("#qa-premium-blockade")) {
@@ -197,7 +195,7 @@ export async function scrape(
 			};
 		}
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		log("10.b visits response", timer);
+		log("9.b visits response", timer);
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
@@ -251,7 +249,7 @@ export async function scrape(
 			}
 		}
 
-		log("10. found exercise buttons", timer);
+		log("9. found exercise buttons", timer);
 
 		// Screenshot each exercise solution
 		const screenshotNames: string[] = [];
@@ -271,15 +269,15 @@ export async function scrape(
 
 			// Only this click works
 			await exerciseBtns[i].evaluate(node => (node as HTMLAnchorElement).click());
-			log("11. clicked exercise button " + i, timer);
+			log("10. clicked exercise button " + i, timer);
 
 			// Wait for the solution to load
 			if (i > 0) {
 				await webPage.waitForResponse(response => response.url().includes("exercises"));
-				log("12.a exercises response", timer);
+				log("11.a exercises response", timer);
 			}
 			await webPage.waitForResponse(response => response.url().includes("visits"));
-			log("12.b solution loaded", timer);
+			log("11.b solution loaded", timer);
 
 			// Wait for images to load
 			const solutionElement = await webPage.$("#qa-exercise");
@@ -294,17 +292,17 @@ export async function scrape(
 					})
 				);
 			});
-			log("12.c images loaded", timer);
+			log("11.c images loaded", timer);
 
 			const screenshotName = `screenshots/screen-${i}.jpg`;
 			screenshotNames.push(screenshotName);
 
 			await solutionElement!.screenshot({ path: screenshotName });
-			log("13. took screenshot", timer);
+			log("12. took screenshot", timer);
 		}
 
 		await browser.close();
-		log("14. browser closed", timer);
+		log("13. browser closed", timer);
 		console.log(`Completed at: ${timestamp("HH:mm:ss, DD.MM.YYYY")}`);
 		return { screenshots: screenshotNames };
 	} catch (err: any) {
