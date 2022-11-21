@@ -54,10 +54,7 @@ export = {
 		}
 
 		// Respond and animate message
-		await interaction.reply("Ściąganie odpowiedzi");
-		for (let i = 0; i < 30; i++) {
-			interaction.editReply("Ściąganie odpowiedzi" + ".".repeat((i % 3) + 1));
-		}
+		await interaction.deferReply();
 
 		// Scrape and display
 		const { screenshots, error } = await scrape(
@@ -70,12 +67,12 @@ export = {
 		);
 
 		if (error) {
-			await interaction.channel?.send(`\`\`\`diff\n-${error!.message}\`\`\``);
+			await interaction.followUp(`\`\`\`diff\n-${error!.message}\`\`\``);
 			isBeingUsed = false;
 		} else {
-			await interaction.channel?.send({ files: screenshots });
+			await interaction.followUp({ files: screenshots });
 			if (screenshots!.length > 1)
-				await interaction.channel?.send(
+				await interaction.followUp(
 					"Wyświetlono wiele odpowiedzi, ponieważ na podanej stronie występuje więcej niż jedno zadanie z podanym numerem."
 				);
 
