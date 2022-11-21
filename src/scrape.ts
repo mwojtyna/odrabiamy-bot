@@ -37,6 +37,7 @@ export async function scrape(
 	throttleNetwork?: boolean
 ): Promise<ScrapeResult> {
 	console.log(`\n------ ${timestamp("HH:mm:ss, DD.MM.YYYY")} ------`);
+	const timer = process.hrtime();
 
 	// Setup browser
 	const width = 1200;
@@ -71,7 +72,7 @@ export async function scrape(
 		defaultViewport: { width: width, height: height }
 	});
 
-	console.log("1. started chrome " + (await browser.version()));
+	log("1. started chrome " + (await browser.version()), timer);
 
 	try {
 		// Load page
@@ -95,10 +96,10 @@ export async function scrape(
 			});
 			const cookies = JSON.parse(cookiesString);
 			await webPage.setCookie(...cookies);
-			console.log("2. cookies loaded: " + cookiesPath);
+			log("2. cookies loaded: " + cookiesPath, timer);
 		}
 		await webPage.goto(website);
-		console.log("3. website loaded");
+		log("3. website loaded", timer);
 
 		try {
 			// Allow cookies
@@ -108,13 +109,13 @@ export async function scrape(
 			await webPage.waitForSelector(cookiesAcceptID, {
 				hidden: true
 			});
-			console.log("4. cookies accepted");
+			log("4. cookies accepted", timer);
 		} catch (error) {
-			console.log("4. cookies accept not found");
+			log("4. cookies accept not found", timer);
 		}
 
 		// Login if not logged in or cookies expired
-		console.log("5. url: " + webPage.url());
+		log("5. url: " + webPage.url(), timer);
 		if (webPage.url() !== "https://odrabiamy.pl/moje") {
 			await webPage.click("[data-testid='login-button']");
 			await webPage.waitForNavigation();
@@ -142,12 +143,12 @@ export async function scrape(
 			}
 
 			interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
-			console.log("6. logged in");
+			log("6. logged in", timer);
 
 			// Save cookies after login
 			const cookies = await webPage.cookies();
 			fs.writeFile(cookiesPath, JSON.stringify(cookies, null, 2));
-			console.log("7. cookies saved");
+			log("7. cookies saved", timer);
 		}
 
 		// Close any pop-ups
@@ -157,23 +158,23 @@ export async function scrape(
 				timeout: 3000
 			});
 		} catch (error) {
-			console.log("8. didn't find popup to close");
+			log("8. didn't find popup to close", timer);
 		}
 		if (popupCloseElement) {
 			await hardClick(popupCloseElement, webPage);
-			console.log("8. popup closed");
+			log("8. popup closed", timer);
 		}
 
 		// Go to correct page
 		await webPage.goto(website + bookUrl + `strona-${page}`);
-		console.log("9. changed page: " + webPage.url());
+		log("9. changed page: " + webPage.url(), timer);
 
 		// Wait for exercises to load
 		try {
 			await webPage.waitForResponse(response => response.url().includes("exercises"), {
 				timeout: 5000
 			});
-			console.log("10.a exercises response");
+			log("10.a exercises response", timer);
 		} catch (error) {
 			// If exercises don't load, check if account is not blocked
 			if (await webPage.$("#qa-premium-blockade")) {
@@ -196,7 +197,7 @@ export async function scrape(
 			};
 		}
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		console.log("10.b visits response");
+		log("10.b visits response", timer);
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
@@ -250,7 +251,7 @@ export async function scrape(
 			}
 		}
 
-		console.log("10. found exercise buttons");
+		log("10. found exercise buttons", timer);
 
 		// Screenshot each exercise solution
 		const screenshotNames: string[] = [];
@@ -270,15 +271,15 @@ export async function scrape(
 
 			// Only this click works
 			await exerciseBtns[i].evaluate(node => (node as HTMLElement).click());
-			console.log("11. clicked exercise button " + i);
+			log("11. clicked exercise button " + i, timer);
 
 			// Wait for the solution to load
 			if (i > 0) {
 				await webPage.waitForResponse(response => response.url().includes("exercises"));
-				console.log("12.a exercises response");
+				log("12.a exercises response", timer);
 			}
 			await webPage.waitForResponse(response => response.url().includes("visits"));
-			console.log("12.b solution loaded");
+			log("12.b solution loaded", timer);
 
 			// Wait for images to load
 			const solutionElement = await webPage.$("#qa-exercise");
@@ -293,17 +294,17 @@ export async function scrape(
 					})
 				);
 			});
-			console.log("12.c images loaded");
+			log("12.c images loaded", timer);
 
 			const screenshotName = `screenshots/screen-${i}.jpg`;
 			screenshotNames.push(screenshotName);
 
 			await solutionElement!.screenshot({ path: screenshotName });
-			console.log("13. took screenshot");
+			log("13. took screenshot", timer);
 		}
 
 		await browser.close();
-		console.log("14. browser closed");
+		log("14. browser closed", timer);
 		console.log(`Completed at: ${timestamp("HH:mm:ss, DD.MM.YYYY")}`);
 		return { screenshots: screenshotNames };
 	} catch (err: any) {
@@ -329,4 +330,7 @@ async function hardClick(element: ElementHandle<Element> | null, webPage: Page):
 
 	await element.focus();
 	await webPage.keyboard.type("\n");
+}
+function log(msg: string, timer: [number, number]): void {
+	console.log(`[${process.hrtime(timer).join(".")}] ${msg}`);
 }
