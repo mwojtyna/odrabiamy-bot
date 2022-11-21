@@ -65,6 +65,7 @@ export = {
 				fs.rmSync(cookiesPath, { force: true });
 			}
 
+			const timer = process.hrtime();
 			const { screenshots, error } = await scrape(
 				test.bookUrl,
 				test.page,
@@ -74,6 +75,8 @@ export = {
 				!nonHeadless,
 				!!test.throttleNetwork || throttleNetwork
 			);
+			const time = process.hrtime(timer);
+			console.log(`Took ${time.join(".")} seconds`);
 
 			if (
 				error &&
@@ -111,7 +114,11 @@ export = {
 				);
 				results.set(i, false);
 			} else if (!error || error.type === test.expectedErrorType) {
-				await message?.edit(`\`\`\`diff\n+Test ${i} '${test.name}' passed.\`\`\``);
+				await message?.edit(
+					`\`\`\`diff\n+Test ${i} '${test.name}' passed (took ${time.join(
+						"."
+					)} seconds).\`\`\``
+				);
 				if (screenshots) await interaction.channel?.send({ files: screenshots });
 
 				results.set(i, true);
