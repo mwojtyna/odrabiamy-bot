@@ -107,6 +107,3 @@ dist
 # App-specific data
 screenshots/
 src/config/*
-
-# VS Code
-.vscode/

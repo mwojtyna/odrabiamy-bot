@@ -64,7 +64,7 @@ export type Command = {
 			aux = aux.join("\n");
 
 			await interaction.channel?.send({
-				content: "Błąd (main.ts):\n\n" + err.message + "\n\n" + aux
+				content: "```diff\n-Błąd (main.ts):\n\n" + err.message + "\n\n" + aux + "```"
 			});
 		}
 	});

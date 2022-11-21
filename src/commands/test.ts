@@ -19,6 +19,12 @@ export = {
 				.setName("non-headless")
 				.setDescription("Otwórz w oknie graficznym")
 				.setRequired(false)
+		)
+		.addBooleanOption(option =>
+			option
+				.setName("throttle-network")
+				.setDescription("Symuluj słaby internet")
+				.setRequired(false)
 		),
 	channels: ["1037012798850486366"],
 	devOnly: true,
@@ -27,6 +33,8 @@ export = {
 		const from = (interaction.options.get("od")?.value ?? 0) as number;
 		const to = (interaction.options.get("do")?.value ?? tests.length - 1) as number;
 		const nonHeadless = (interaction.options.get("non-headless")?.value ?? false) as boolean;
+		const throttleNetwork = (interaction.options.get("throttle-network")?.value ??
+			false) as boolean;
 
 		if (to + 1 > tests.length) {
 			await interaction.reply("End index out of range.");
@@ -38,6 +46,11 @@ export = {
 		// Backup cookies
 		const cookiesPath = path.join(process.cwd(), "src/config/cookies.json");
 		const cookiesBackupPath = path.join(process.cwd(), "src/config/cookies.json.bak");
+
+		// Avoid error when previous test was interrupted
+		if (!fs.existsSync(cookiesPath) && fs.existsSync(cookiesBackupPath)) {
+			fs.renameSync(cookiesBackupPath, cookiesPath);
+		}
 		fs.copyFileSync(cookiesPath, cookiesBackupPath);
 
 		// Run tests
@@ -52,26 +65,42 @@ export = {
 				fs.rmSync(cookiesPath, { force: true });
 			}
 
+			const timer = process.hrtime();
 			const { screenshots, error } = await scrape(
 				test.bookUrl,
 				test.page,
 				test.exercise,
 				!!test.trailingDot,
 				interaction,
-				!nonHeadless
+				!nonHeadless,
+				!!test.throttleNetwork || throttleNetwork
 			);
+			const time = parseFloat(process.hrtime(timer).join(".")).toFixed(3);
+			console.log(`Took ${time} seconds`);
 
 			if (
-				test.expectedErrorType &&
 				error &&
+				test.expectedErrorType &&
 				error.type !== ErrorType.UnhandledError &&
 				error.type !== test.expectedErrorType
 			) {
 				await message?.edit(
 					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
 						ErrorType[error.type]
-					}:\n\n ${error.message}
+					}:\n\n${error.message}
 					\n-Expected error of type ${ErrorType[test.expectedErrorType!]}\`\`\``
+				);
+				results.set(i, false);
+			} else if (
+				error &&
+				error.type === test.expectedErrorType &&
+				error.message !== test.expectedErrorMessage
+			) {
+				await message?.edit(
+					`\`\`\`diff\n-Test ${i} '${test.name}' failed with message
+					\n'${error.message}'
+					\n-Expected error message:
+					\n'${test.expectedErrorMessage}'\`\`\``
 				);
 				results.set(i, false);
 			} else if (
@@ -81,11 +110,13 @@ export = {
 				await message?.edit(
 					`\`\`\`diff\n-Test ${i} '${test.name}' failed with ${
 						ErrorType[error.type]
-					}:\n\n ${error.message}\`\`\``
+					}:\n\n${error.message}\`\`\``
 				);
 				results.set(i, false);
 			} else if (!error || error.type === test.expectedErrorType) {
-				await message?.edit(`\`\`\`diff\n+Test ${i} '${test.name}' passed.\`\`\``);
+				await message?.edit(
+					`\`\`\`diff\n+Test ${i} '${test.name}' passed (took ${time} seconds).\`\`\``
+				);
 				if (screenshots) await interaction.channel?.send({ files: screenshots });
 
 				results.set(i, true);
@@ -98,6 +129,9 @@ export = {
 
 		// Restore cookies
 		fs.moveSync(cookiesBackupPath, cookiesPath, { overwrite: true });
+
+		// Remove screenshots
+		fs.emptyDirSync(path.join(process.cwd(), "screenshots"));
 
 		// prettier-ignore
 		await interaction.channel?.send(

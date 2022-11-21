@@ -15,7 +15,12 @@ else
 fi
 
 if [ "$1" == "--run" ]; then
-	docker run -d --env-file .env-dev --name odrabiamy-bot matijas05/odrabiamy-bot:$VERSION
+	read -p "$(echo -e "${RED}Are you sure? Running in local docker container may result in a temporary ban of the premium account ${NC}(y/n) ")" -n 1 -r
+	echo
+
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		docker run -d --env-file .env-dev --name odrabiamy-bot matijas05/odrabiamy-bot:$VERSION
+	fi
 fi
 if [ "$1" == "--push" ]; then
 	./scripts/push_bot.sh

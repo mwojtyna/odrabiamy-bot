@@ -1,15 +1,18 @@
 import { CacheType, CommandInteraction } from "discord.js";
-import { ElementHandle, Page, executablePath } from "puppeteer";
+import { ElementHandle, executablePath } from "puppeteer";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
 import path from "path";
+import async from "async";
+import timestamp from "time-stamp";
 
 export enum ErrorType {
 	UnhandledError,
 	PageNotFoundError,
 	ExerciseNotFoundError,
-	ExerciseNotFoundButSubexercisesFoundError
+	ExerciseNotFoundButSubexercisesFoundError,
+	IndividualExerciseError
 }
 export class ScrapeError {
 	type: ErrorType;
@@ -30,9 +33,11 @@ export async function scrape(
 	exercise: string,
 	trailingDot: boolean,
 	interaction: CommandInteraction<CacheType>,
-	headless?: boolean
+	headless: boolean,
+	throttleNetwork?: boolean
 ): Promise<ScrapeResult> {
-	console.log(`\n------ ${getCurrentTime()} ------`);
+	console.log(`\n------ ${timestamp("HH:mm:ss, DD.MM.YYYY")} ------`);
+	const timer = process.hrtime();
 
 	// Setup browser
 	const width = 1200;
@@ -43,27 +48,45 @@ export async function scrape(
 	const browser = await pup.use(stealthPlugin()).launch({
 		// devtools: true,
 		// slowMo: 100,
-		headless: headless || process.env.NODE_ENV === "server",
+		headless: headless,
 		executablePath: executablePath(),
 		args: [
 			`--window-size=${width},${height}`,
 			"--no-sandbox",
-			// "--disable-setuid-sandbox",
-			// "--disable-dev-shm-usage",
-			// "--disable-accelerated-2d-canvas",
-			// "--no-first-run",
-			// "--no-zygote",
+			"--disable-canvas-aa",
+			"--disable-2d-canvas-clip-aa",
+			"--disable-gl-drawing-for-tests",
+			"--disable-dev-shm-usage",
+			"--no-zygote",
+			"--use-gl=desktop",
+			"--enable-webgl",
+			"--hide-scrollbars",
+			"--mute-audio",
+			"--no-first-run",
+			"--disable-infobars",
+			"--disable-breakpad",
+			"--disable-setuid-sandbox",
 			process.platform === "linux" && process.arch === "arm64" ? "--single-process" : ""
-			// "--disable-gpu"
 		],
 		defaultViewport: { width: width, height: height }
 	});
 
-	console.log("1. started chrome " + (await browser.version()));
+	log("1. started chrome " + (await browser.version()), timer);
 
 	try {
 		// Load page
 		const [webPage] = await browser.pages();
+
+		// Simulate bad internet for tests
+		if (throttleNetwork) {
+			const client = await webPage.target().createCDPSession();
+			await client.send("Network.emulateNetworkConditions", {
+				offline: false,
+				downloadThroughput: (450 * 1024) / 8,
+				uploadThroughput: (150 * 1024) / 8,
+				latency: 150
+			});
+		}
 
 		// Load cookies
 		if (fs.existsSync(cookiesPath)) {
@@ -72,27 +95,25 @@ export async function scrape(
 			});
 			const cookies = JSON.parse(cookiesString);
 			await webPage.setCookie(...cookies);
-			console.log("2. cookies loaded: " + cookiesPath);
+			log("2. cookies loaded: " + cookiesPath, timer);
 		}
 		await webPage.goto(website);
-		console.log("3. website loaded");
+		log("3. website loaded: " + webPage.url(), timer);
 
 		try {
 			// Allow cookies
 			const cookiesAcceptID = "#qa-rodo-accept";
 			const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID, { timeout: 5000 });
-			await hardClick(cookiesAccept, webPage);
-			await webPage.waitForSelector(cookiesAcceptID, {
-				hidden: true
-			});
-			console.log("4. cookies accepted");
+			log("4.a cookies accept found", timer);
+
+			await cookiesAccept!.evaluate(node => (node as HTMLButtonElement).click());
+			await webPage.waitForSelector(cookiesAcceptID, { hidden: true, timeout: 5000 });
+			log("4.b cookies accept clicked", timer);
 		} catch (error) {
-			// Do nothing if cookies accept is not showing up
-			false;
+			log("4.a cookies accept not found or not clicked properly", timer);
 		}
 
 		// Login if not logged in or cookies expired
-		console.log("5. url: " + webPage.url());
 		if (webPage.url() !== "https://odrabiamy.pl/moje") {
 			await webPage.click("[data-testid='login-button']");
 			await webPage.waitForNavigation();
@@ -120,37 +141,39 @@ export async function scrape(
 			}
 
 			interaction.channel?.send("Pliki cookies wygasły, zalogowano się ponownie.");
-			console.log("6. logged in");
+			log("5. logged in", timer);
 
 			// Save cookies after login
 			const cookies = await webPage.cookies();
 			fs.writeFile(cookiesPath, JSON.stringify(cookies, null, 2));
-			console.log("7. cookies saved");
+			log("6. cookies saved", timer);
 		}
 
 		// Close any pop-ups
 		let popupCloseElement: ElementHandle<Element> | null = null;
 		try {
 			popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']", {
-				timeout: 3000
+				timeout: 5000
 			});
+			log("7.a popup found", timer);
 		} catch (error) {
-			console.log("8. didn't find popup to close");
+			log("7. didn't find popup to close", timer);
 		}
 		if (popupCloseElement) {
-			await hardClick(popupCloseElement, webPage);
-			console.log("8. popup closed");
+			await popupCloseElement.evaluate(node => (node as HTMLButtonElement).click());
+			log("7.b popup closed", timer);
 		}
 
 		// Go to correct page
 		await webPage.goto(website + bookUrl + `strona-${page}`);
-		console.log("9. changed page: " + webPage.url());
+		log("8. changed page: " + webPage.url(), timer);
 
 		// Wait for exercises to load
 		try {
-			await webPage.waitForResponse(response => response.url().includes("visits"), {
+			await webPage.waitForResponse(response => response.url().includes("exercises"), {
 				timeout: 5000
 			});
+			log("9.a exercises response", timer);
 		} catch (error) {
 			// If exercises don't load, check if account is not blocked
 			if (await webPage.$("#qa-premium-blockade")) {
@@ -167,41 +190,52 @@ export async function scrape(
 			await browser.close();
 			return {
 				error: new ScrapeError(
-					`Strona ${page} nie istnieje. Jeśli taka strona istnieje w książce, możliwe jest że nie jest jeszcze rozwiązana w odrabiamy.pl`,
+					`Nie znaleziono zadań na stronie ${page}. Jeśli w książce na takiej stronie znajdują się zadania, możliwe jest, że nie są jeszcze rozwiązane w odrabiamy.pl`,
 					ErrorType.PageNotFoundError
 				)
 			};
 		}
-		console.log("10.a visits response");
-		await webPage.waitForResponse(response => response.url().includes("exercises"));
-		console.log("10.b exercises response");
 		await webPage.waitForResponse(response => response.url().includes("visits"));
-		console.log("10.c visits response");
+		log("9.b visits response", timer);
 
 		// Parse exercise number (has to be here because of tests)
 		let exerciseParsed = exercise;
-		if (exerciseParsed.charAt(exerciseParsed.length - 1) === "." && !trailingDot)
+		if (
+			exerciseParsed.charAt(exerciseParsed.length - 1) === "." &&
+			exerciseParsed.charAt(exerciseParsed.length - 2) !== "." &&
+			!trailingDot
+		)
 			exerciseParsed = exerciseParsed.slice(0, -1);
 		else if (exerciseParsed.charAt(exerciseParsed.length - 1) !== "." && trailingDot)
 			exerciseParsed += ".";
 
-		exerciseParsed = exerciseParsed.replaceAll(".", "\\.");
-
-		// Select exercise and take screenshots
-		const exerciseSelector = `#qa-exercise-no-${exerciseParsed} > a`;
+		// Find exercise buttons
+		const exerciseSelector = `[id='qa-exercise-no-${exerciseParsed}'] > a`;
 		const exerciseBtns = await webPage.$$(exerciseSelector);
+		const individualExerciseBtns = await async.filter(exerciseBtns, async btn => {
+			const paragraphs = await btn.$$("p");
+			const individualText = await async.filter(paragraphs, async p => {
+				const innerText = await p.evaluate(node => node.innerText);
+				return innerText.includes("Indywidualne");
+			});
+
+			return individualText.length > 0;
+		});
 
 		if (exerciseBtns.length === 0) {
-			const subexercises = await webPage.$$(`#qa-exercise-no-${exerciseParsed}a > a`);
+			const subexercises = await webPage.$$(`[id^='qa-exercise-no-${exerciseParsed}']`);
+			const ids = await async.map(subexercises, async (btn: ElementHandle<Element>) => {
+				const id = await btn.evaluate(node => node.id);
+				return id.split(exerciseParsed)[1];
+			});
+
 			if (subexercises.length > 0) {
 				await browser.close();
 				return {
 					error: new ScrapeError(
-						"Nie znaleziono zadania " +
-							exercise +
-							" na stronie " +
-							page +
-							", ale znaleziono podpunkty tego zadania.",
+						`Nie znaleziono zadania ${exercise} na stronie ${page}, ale znaleziono podpunkt${
+							ids.length > 1 ? "y" : ""
+						} ${ids.join(", ")} tego zadania`,
 						ErrorType.ExerciseNotFoundButSubexercisesFoundError
 					)
 				};
@@ -209,40 +243,68 @@ export async function scrape(
 				await browser.close();
 				return {
 					error: new ScrapeError(
-						"Nie znaleziono zadania " + exercise + " na stronie " + page + ".",
+						`Nie znaleziono zadania ${exercise} na stronie ${page}`,
 						ErrorType.ExerciseNotFoundError
 					)
 				};
 			}
 		}
 
-		console.log("10. found exercise buttons");
+		log("9. found exercise buttons", timer);
 
+		// Screenshot each exercise solution
 		const screenshotNames: string[] = [];
 		for (let i = 0; i < exerciseBtns.length; i++) {
+			// Skip 'individual' exercises
+			if (exerciseBtns.length === 1 && individualExerciseBtns.length === 1) {
+				await browser.close();
+				return {
+					error: new ScrapeError(
+						`Zadanie ${exercise} na stronie ${page} jest do rozwiązania indywidualnego. Nie ma rozwiązania w odrabiamy.pl`,
+						ErrorType.IndividualExerciseError
+					)
+				};
+			} else if (individualExerciseBtns.includes(exerciseBtns[i])) {
+				continue;
+			}
+
 			// Only this click works
-			await webPage.$$eval(
-				exerciseSelector,
-				(elements, i) => (elements[i] as HTMLElement).click(),
-				i
-			);
-			console.log("11. clicked exercise button " + i);
+			await exerciseBtns[i].evaluate(node => (node as HTMLAnchorElement).click());
+			log("10. clicked exercise button " + i, timer);
 
 			// Wait for the solution to load
+			if (i > 0) {
+				await webPage.waitForResponse(response => response.url().includes("exercises"));
+				log("11.a exercises response", timer);
+			}
 			await webPage.waitForResponse(response => response.url().includes("visits"));
-			console.log("12. exercise loaded");
+			log("11.b solution loaded", timer);
+
+			// Wait for images to load
+			const solutionElement = await webPage.$("#qa-exercise");
+			await solutionElement!.$$eval("img", async imgs => {
+				await Promise.all(
+					imgs.map(img => {
+						if (img.complete) return;
+						return new Promise((resolve, reject) => {
+							img.addEventListener("load", resolve);
+							img.addEventListener("error", reject);
+						});
+					})
+				);
+			});
+			log("11.c images loaded", timer);
 
 			const screenshotName = `screenshots/screen-${i}.jpg`;
 			screenshotNames.push(screenshotName);
 
-			const solutionElement = (await webPage.$("#qa-exercise"))!;
-			await solutionElement.screenshot({ path: screenshotName });
-			console.log("13. took screenshot");
+			await solutionElement!.screenshot({ path: screenshotName });
+			log("12. took screenshot", timer);
 		}
 
 		await browser.close();
-		console.log("14. browser closed");
-		console.log(`Completed at: ${getCurrentTime()}`);
+		log("13. browser closed", timer);
+		console.log(`Completed at: ${timestamp("HH:mm:ss, DD.MM.YYYY")}`);
 		return { screenshots: screenshotNames };
 	} catch (err: any) {
 		await browser.close();
@@ -260,18 +322,6 @@ export async function scrape(
 	}
 }
 
-function getCurrentTime() {
-	const date = new Date();
-	return (
-		`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}, ${date.getDate()}` +
-		`.${date.getMonth() + 1}.${date.getFullYear()}`
-	);
-}
-async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
-	// Sometimes built-in click() method doesn't work
-	// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
-	if (!element) return;
-
-	await element.focus();
-	await webPage.keyboard.type("\n");
+function log(msg: string, timer: [number, number]): void {
+	console.log(`[${parseFloat(process.hrtime(timer).join(".")).toFixed(3)}] ${msg}`);
 }
