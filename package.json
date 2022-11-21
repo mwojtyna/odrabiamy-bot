@@ -9,7 +9,7 @@
 		"commands": "ts-node src/commands-deploy.ts",
 		"commands-dev": "ts-node src/commands-deploy-dev.ts",
 		"logout": "rm src/config/cookies.json",
-		"global": "npm i -g nodemon"
+		"global": "npm i -g nodemon eslint"
 	},
 	"repository": {
 		"type": "git",
