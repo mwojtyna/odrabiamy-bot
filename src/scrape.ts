@@ -1,5 +1,5 @@
 import { CacheType, CommandInteraction } from "discord.js";
-import { ElementHandle, Page, executablePath } from "puppeteer";
+import { ElementHandle, executablePath } from "puppeteer";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "fs-extra";
@@ -105,13 +105,13 @@ export async function scrape(
 			// Allow cookies
 			const cookiesAcceptID = "#qa-rodo-accept";
 			const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID, { timeout: 5000 });
-			await hardClick(cookiesAccept, webPage);
-			await webPage.waitForSelector(cookiesAcceptID, {
-				hidden: true
-			});
-			log("4. cookies accepted", timer);
+			log("4.a cookies accept found", timer);
+
+			await cookiesAccept!.evaluate(node => (node as HTMLButtonElement).click());
+			await webPage.waitForSelector(cookiesAcceptID, { hidden: true, timeout: 5000 });
+			log("4.b cookies accept clicked", timer);
 		} catch (error) {
-			log("4. cookies accept not found", timer);
+			log("4.a cookies accept not found or not clicked properly", timer);
 		}
 
 		// Login if not logged in or cookies expired
@@ -155,13 +155,13 @@ export async function scrape(
 		let popupCloseElement: ElementHandle<Element> | null = null;
 		try {
 			popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']", {
-				timeout: 3000
+				timeout: 5000
 			});
 		} catch (error) {
 			log("8. didn't find popup to close", timer);
 		}
 		if (popupCloseElement) {
-			await hardClick(popupCloseElement, webPage);
+			popupCloseElement.evaluate(node => (node as HTMLButtonElement).click());
 			log("8. popup closed", timer);
 		}
 
@@ -270,7 +270,7 @@ export async function scrape(
 			}
 
 			// Only this click works
-			await exerciseBtns[i].evaluate(node => (node as HTMLElement).click());
+			await exerciseBtns[i].evaluate(node => (node as HTMLAnchorElement).click());
 			log("11. clicked exercise button " + i, timer);
 
 			// Wait for the solution to load
@@ -323,14 +323,6 @@ export async function scrape(
 	}
 }
 
-async function hardClick(element: ElementHandle<Element> | null, webPage: Page): Promise<void> {
-	// Sometimes built-in click() method doesn't work
-	// https://github.com/puppeteer/puppeteer/issues/1805#issuecomment-418965009
-	if (!element) return;
-
-	await element.focus();
-	await webPage.keyboard.type("\n");
-}
 function log(msg: string, timer: [number, number]): void {
 	console.log(`[${parseFloat(process.hrtime(timer).join(".")).toFixed(3)}] ${msg}`);
 }
