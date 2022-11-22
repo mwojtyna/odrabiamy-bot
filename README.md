@@ -51,15 +51,28 @@ where env-file is a text file containing environment variables separated by a **
 
 ## Environment variables
 
-- TOKEN: Discord bot token from your application on <https://discord.com/developers>
-- APP_ID: Application ID from your application on <https://discord.com/developers>
-- GUILD_ID: Right-click on your Discord server and choose "Copy ID"
-- EMAIL: Email of a user that has a premium account on <https://odrabiamy.pl>
-- PASSWORD: Password of a user that has a premium account on <https://odrabiamy.pl>
+- `TOKEN`: Discord bot token from your application on <https://discord.com/developers>
+- `APP_ID`: Application ID from your application on <https://discord.com/developers>
+- `GUILD_ID`: Right-click on your Discord server and choose "Copy ID"
+- `EMAIL`: Email of a user that has a premium account on <https://odrabiamy.pl>
+- `PASSWORD`: Password of a user that has a premium account on <https://odrabiamy.pl>
 
-## Config
+## Config folder
 
-"config" volume contains:
+The `config` folder contains:
 
 - `config.json` - file that decides which channels are for which books,
 - `cookies.json` - prevents having to log in each time a command is executed.
+
+## Config file
+File `config.json` decides which books are assigned to which channels. Example:
+```jsonc
+{
+	"1036644889640829018": { // id of the discord channel
+		"url": "jezyk-polski/ksiazka-12533/" // part of the url that leads to the specific book
+	},
+	"1036644889867325594": {
+		"url": "matematyka/ksiazka-13007/"
+	}
+}
+```
