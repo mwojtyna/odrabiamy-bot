@@ -5,11 +5,11 @@
 	"main": "src/main.ts",
 	"scripts": {
 		"start": "if [ \"$NODE_ENV\" = \"server\" ]; then ts-node --transpile-only src/main.ts; fi",
-		"dev": "export NODE_ENV=local && nodemon --files src/main.ts",
+		"dev": "cross-env NODE_ENV=local nodemon --files src/main.ts",
 		"commands": "ts-node src/commands-deploy.ts",
 		"commands-dev": "ts-node src/commands-deploy-dev.ts",
 		"logout": "rm src/config/cookies.json",
-		"global": "npm i -g npm-check-updates git-open nodemon eslint"
+		"global": "npm i -g npm-check-updates git-open"
 	},
 	"repository": {
 		"type": "git",
@@ -29,7 +29,9 @@
 		"@types/fs-extra": "^9.0.13",
 		"@types/puppeteer": "^5.4.7",
 		"@typescript-eslint/eslint-plugin": "^5.43.0",
-		"@typescript-eslint/parser": "^5.43.0"
+		"@typescript-eslint/parser": "^5.43.0",
+		"cross-env": "^7.0.3",
+		"nodemon": "^2.0.20"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.3.0",
