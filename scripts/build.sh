@@ -6,13 +6,8 @@ NC='\033[0m' # No Color
 ./scripts/remove_bot.sh
 VERSION=$(jq -r '.version' package.json)
 
-if [[ "$VERSION" == *"-dev"* ]]; then
-	docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
-	docker tag matijas05/odrabiamy-bot:$VERSION matijas05/odrabiamy-bot:dev
-else
-	echo -e "${RED}Refused to create a non-development docker image.${NC}"
-	exit 1
-fi
+docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
+docker tag matijas05/odrabiamy-bot:$VERSION matijas05/odrabiamy-bot:dev
 
 if [ "$1" == "--run" ]; then
 	read -p "$(echo -e "${RED}Are you sure? Running in local docker container may result in a temporary ban of the premium account ${NC}(y/n) ")" -n 1 -r

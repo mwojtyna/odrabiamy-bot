@@ -6,7 +6,7 @@ COPY package.json /tmp
 RUN jq '{ scripts, dependencies, devDependencies }' < /tmp/package.json > /tmp/deps.json
 
 # Actual image
-FROM arm64v8/node:18.12-bullseye-slim
+FROM node:18.12-bullseye-slim
 WORKDIR /app
 
 # Install dependencies
@@ -23,7 +23,7 @@ ENV NODE_ENV=server
 # Install packages
 COPY --from=deps /tmp/deps.json ./package.json
 COPY package-lock.json ./
-RUN npm i --omit=dev
+RUN npm ci --omit=dev
 
 # Copy required files to /app
 COPY tsconfig.json ./
