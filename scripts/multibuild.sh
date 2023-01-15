@@ -5,10 +5,19 @@ NC='\033[0m' # No Color
 
 VERSION=$(jq -r '.version' package.json)
 
-docker buildx build \
-	--platform linux/arm64/v8,linux/amd64 \
-	--build-arg VERSION=$VERSION \
-	-t matijas05/odrabiamy-bot:$VERSION \
-	-t matijas05/odrabiamy-bot:dev \
-	--push \
-	.
+if [[ $VERSION == *"-dev"* ]]; then
+	docker buildx build \
+		--platform linux/arm64/v8,linux/amd64 \
+		--build-arg VERSION=$VERSION \
+		-t matijas05/odrabiamy-bot:dev \
+		--push \
+		.
+else
+	docker buildx build \
+		--platform linux/arm64/v8,linux/amd64 \
+		--build-arg VERSION=$VERSION \
+		-t matijas05/odrabiamy-bot:$VERSION \
+		-t matijas05/odrabiamy-bot:latest \
+		--push \
+		.
+fi
