@@ -2,10 +2,6 @@
 
 Discord bot for retrieving data from <https://odrabiamy.pl/>
 
-## CAUTION
-
-From version 1.3 up, the docker image is only for arm64v8 platform!
-
 ## Starting the bot
 
 ```bash
