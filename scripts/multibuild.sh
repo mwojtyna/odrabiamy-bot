@@ -7,14 +7,14 @@ VERSION=$(jq -r '.version' package.json)
 
 if [[ $VERSION == *"-dev"* ]]; then
 	docker buildx build \
-		--platform linux/arm64/v8,linux/amd64 \
+		--platform linux/arm64,linux/amd64 \
 		--build-arg VERSION=$VERSION \
 		-t matijas05/odrabiamy-bot:dev \
 		--push \
 		.
 else
 	docker buildx build \
-		--platform linux/arm64/v8,linux/amd64 \
+		--platform linux/arm64,linux/amd64 \
 		--build-arg VERSION=$VERSION \
 		-t matijas05/odrabiamy-bot:$VERSION \
 		-t matijas05/odrabiamy-bot:latest \
