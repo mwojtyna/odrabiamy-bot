@@ -1,13 +1,11 @@
 {
 	"extends": "ts-node/node16/tsconfig.json",
-	"include": [
-		"src/**/*"
-	],
+	"include": ["src/**/*"],
 	"compilerOptions": {
-		"lib": [
-			"DOM",
-			"ES2021"
-		],
+		"lib": ["DOM", "ES2021"],
 		"resolveJsonModule": true
+	},
+	"ts-node": {
+		"files": true
 	}
 }
