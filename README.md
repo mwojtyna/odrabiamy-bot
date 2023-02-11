@@ -4,16 +4,18 @@ Discord bot for retrieving data from <https://odrabiamy.pl/>
 
 ## Starting the bot
 
+Place the [config.json](#config-file) file inside an empty folder on your local machine. Then, run the bot using one of the methods below (remember to replace the env variables and the config folder path):
+
 ```bash
 docker run -d \
  --name odrabiamy-bot \
  --restart unless-stopped \
- -e TOKEN="<token>" \
- -e APP_ID="<app_id>" \
- -e GUILD_ID="<guild_id>" \
- -e EMAIL="<email>" \
- -e PASSWORD="<password>" \
- -v "/srv/odrabiamy-bot/config:/app/src/config" \
+ -e TOKEN="token" \
+ -e APP_ID="app_id" \
+ -e GUILD_ID="guild_id" \
+ -e EMAIL="email" \
+ -e PASSWORD="password" \
+ -v "path_to_your_config_folder:/app/src/config" \
  matijas05/odrabiamy-bot:latest
 ```
 
@@ -23,9 +25,27 @@ OR
 docker run -d \
  --name odrabiamy-bot \
  --restart unless-stopped \
- --env-file <.env_file_path> \
- -v "/srv/odrabiamy-bot/config:/app/src/config" \
+ --env-file "env_file_path" \
+ -v "path_to_your_config_folder:/app/src/config" \
  matijas05/odrabiamy-bot:latest
+```
+
+OR (using docker compose)
+```yaml
+version: '2.1'
+services:
+  odrabiamy-bot:
+    container_name: odrabiamy-bot
+    image: matijas05/odrabiamy-bot:latest
+    restart: unless-stopped
+    environment:
+      - TOKEN=token
+      - APP_ID=id
+      - GUILD_ID=id
+      - EMAIL=email
+      - PASSWORD=password
+    volumes:
+      - path_to_your_config_folder:/app/src/config
 ```
 
 OR (using docker compose)
@@ -36,14 +56,14 @@ services:
   odrabiamy-bot:
     container_name: odrabiamy-bot
     image: matijas05/odrabiamy-bot:latest
-    restart: always
-    volumes:
-      - /srv/odrabiamy-bot/config:/app/src/config
+    restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - path_to_your_config_folder:/app/src/config
 ```
 
-where env-file is a text file containing environment variables separated by a **new line** and with **no quotes**.
+where env-file is a text file containing environment variables (e.g. VARIABLE=value) separated by a **new line** and with **no quotes**.
 
 ## Environment variables
 
@@ -57,8 +77,8 @@ where env-file is a text file containing environment variables separated by a **
 
 The `config` folder contains:
 
-- `config.json` - file that decides which channels are for which books,
-- `cookies.json` - prevents having to log in each time a command is executed.
+- `config.json` - file that you must add which decides which Discord channels are for which books,
+- `cookies.json` - auto-generated file that prevents having to log in to `odrabiamy.pl` each time a command is executed.
 
 ## Config file
 File `config.json` decides which books are assigned to which channels. Example:
