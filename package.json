@@ -43,7 +43,7 @@
 		"dotenv": "^16.0.3",
 		"express": "^4.18.2",
 		"fs-extra": "^10.1.0",
-		"puppeteer": "^19.2.2",
+		"puppeteer": "19.4.0",
 		"puppeteer-extra": "^3.3.4",
 		"puppeteer-extra-plugin-stealth": "^2.11.1",
 		"time-stamp": "^2.2.0",
