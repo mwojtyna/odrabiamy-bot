@@ -1,6 +1,8 @@
 # odrabiamy-bot
 
-Discord bot for retrieving data from <https://odrabiamy.pl/>
+Discord bot for retrieving data from <https://odrabiamy.pl/> using only 1 premium account. It requires you to create a Discord bot and to [assign a Discord channel id with a specific book](#config-file). Then, you can go to the specific Discord channel and run the `/zad` command. On first run it always logs in for you, which will take some time. Each consecutive run will be shorter, because the cookies are saved.
+
+It is recommended to host the bot on a server that is placed in Poland, because otherwise odrabiamy.pl checks for suspicious activity.
 
 ## Starting the bot
 
@@ -31,6 +33,7 @@ docker run -d \
 ```
 
 OR (using docker compose)
+
 ```yaml
 version: '2.1'
 services:
