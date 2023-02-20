@@ -3,7 +3,7 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-./scripts/remove_bot.sh
+./scripts/remove.sh
 VERSION=$(jq -r '.version' package.json)
 
 docker build --build-arg VERSION=$VERSION -t matijas05/odrabiamy-bot:$VERSION .
@@ -18,5 +18,5 @@ if [ "$1" == "--run" ]; then
 	fi
 fi
 if [ "$1" == "--push" ]; then
-	./scripts/push_bot.sh
+	./scripts/push.sh
 fi

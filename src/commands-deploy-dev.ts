@@ -7,8 +7,6 @@ import dotenv from "dotenv";
 
 import { Command } from "./main";
 
-//** Run 'npx ts-node src/commands-deploy.ts' to register commands in dev guild */
-
 (async () => {
 	dotenv.config({ path: path.join(process.cwd(), ".env-dev") });
 
@@ -33,5 +31,6 @@ import { Command } from "./main";
 		console.log(clc.green("Registered commands (dev guild)."));
 	} catch (error) {
 		console.error(clc.red(`Error registering commands (dev guild):\n${error}`));
+		process.exit(1);
 	}
 })();
