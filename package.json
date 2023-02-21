@@ -1,6 +1,6 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.8.1",
+	"version": "1.8.2",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
 	"scripts": {

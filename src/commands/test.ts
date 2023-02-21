@@ -12,15 +12,15 @@ export = {
 	data: new SlashCommandBuilder()
 		.setName("test")
 		.setDescription("Testuje bota")
-		.addIntegerOption(option => option.setName("od").setDescription("Od").setRequired(false))
-		.addIntegerOption(option => option.setName("do").setDescription("Do").setRequired(false))
-		.addBooleanOption(option =>
+		.addIntegerOption((option) => option.setName("od").setDescription("Od").setRequired(false))
+		.addIntegerOption((option) => option.setName("do").setDescription("Do").setRequired(false))
+		.addBooleanOption((option) =>
 			option
 				.setName("non-headless")
 				.setDescription("Otwórz w oknie graficznym")
 				.setRequired(false)
 		)
-		.addBooleanOption(option =>
+		.addBooleanOption((option) =>
 			option
 				.setName("throttle-network")
 				.setDescription("Symuluj słaby internet")
@@ -50,8 +50,9 @@ export = {
 		// Avoid error when previous test was interrupted
 		if (!fs.existsSync(cookiesPath) && fs.existsSync(cookiesBackupPath)) {
 			fs.renameSync(cookiesBackupPath, cookiesPath);
+		} else if (fs.existsSync(cookiesPath)) {
+			fs.copyFileSync(cookiesPath, cookiesBackupPath, fs.constants.COPYFILE_FICLONE);
 		}
-		fs.copyFileSync(cookiesPath, cookiesBackupPath);
 
 		// Run tests
 		const results: Map<number, boolean> = new Map<number, boolean>();
@@ -128,19 +129,20 @@ export = {
 		}
 
 		// Restore cookies
-		fs.moveSync(cookiesBackupPath, cookiesPath, { overwrite: true });
+		if (fs.existsSync(cookiesBackupPath)) {
+			fs.moveSync(cookiesBackupPath, cookiesPath, { overwrite: true });
+		}
 
 		// Remove screenshots
 		fs.emptyDirSync(path.join(process.cwd(), "screenshots"));
 
-		// prettier-ignore
 		await interaction.channel?.send(
 			Array.from(results.values()).includes(false)
 				? `\`\`\`diff\n-Tests failed (id: ${Array.from(results.entries())
-					.map((pair) => pair[0])
-					.filter(i => !results.get(i))
-					.join(", ")}).\`\`\``
+						.map((pair) => pair[0])
+						.filter((i) => !results.get(i))
+						.join(", ")}).\`\`\``
 				: "```diff\n+Tests passed.```"
 		);
-	}
+	},
 } as Command;
