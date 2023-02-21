@@ -84,14 +84,16 @@ The `config` folder contains:
 - `cookies.json` - auto-generated file that prevents having to log in to `odrabiamy.pl` each time a command is executed.
 
 ## Config file
+
 File `config.json` decides which books are assigned to which channels. Example:
+
 ```jsonc
 {
-	"1036644889640829018": { // id of the discord channel
-		"url": "jezyk-polski/ksiazka-12533/" // part of the url that leads to the specific book
-	},
-	"1036644889867325594": {
-		"url": "matematyka/ksiazka-13007/"
-	}
+  "1036644889640829018": { // id of the discord channel
+    "url": "jezyk-polski/ksiazka-12533/" // part of the url that leads to the specific book
+  },
+  "1036644889867325594": {
+    "url": "matematyka/ksiazka-13007/"
+  }
 }
 ```
