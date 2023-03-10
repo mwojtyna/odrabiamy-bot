@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import type { CacheType, CommandInteraction } from "discord.js";
 import { ElementHandle, executablePath } from "puppeteer";
 import pup from "puppeteer-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
@@ -6,13 +6,14 @@ import fs from "fs-extra";
 import path from "path";
 import async from "async";
 import timestamp from "time-stamp";
+import { __dirname } from "./utils";
 
 export enum ErrorType {
 	UnhandledError,
 	PageNotFoundError,
 	ExerciseNotFoundError,
 	ExerciseNotFoundButSubexercisesFoundError,
-	IndividualExerciseError
+	IndividualExerciseError,
 }
 export class ScrapeError {
 	type: ErrorType;
@@ -66,9 +67,9 @@ export async function scrape(
 			"--disable-infobars",
 			"--disable-breakpad",
 			"--disable-setuid-sandbox",
-			process.platform === "linux" && process.arch === "arm64" ? "--single-process" : ""
+			process.platform === "linux" && process.arch === "arm64" ? "--single-process" : "",
 		],
-		defaultViewport: { width: width, height: height }
+		defaultViewport: { width: width, height: height },
 	});
 
 	log("1. started chrome " + (await browser.version()), timer);
@@ -77,6 +78,12 @@ export async function scrape(
 		// Load page
 		const [webPage] = await browser.pages();
 
+		if (!webPage) {
+			return {
+				error: new ScrapeError("Nie udało się załadować strony", ErrorType.UnhandledError),
+			};
+		}
+
 		// Simulate bad internet for tests
 		if (throttleNetwork) {
 			const client = await webPage.target().createCDPSession();
@@ -84,14 +91,14 @@ export async function scrape(
 				offline: false,
 				downloadThroughput: (450 * 1024) / 8,
 				uploadThroughput: (150 * 1024) / 8,
-				latency: 150
+				latency: 150,
 			});
 		}
 
 		// Load cookies
 		if (fs.existsSync(cookiesPath)) {
 			const cookiesString = fs.readFileSync(cookiesPath, {
-				encoding: "utf-8"
+				encoding: "utf-8",
 			});
 			const cookies = JSON.parse(cookiesString);
 			await webPage.setCookie(...cookies);
@@ -106,7 +113,7 @@ export async function scrape(
 			const cookiesAccept = await webPage.waitForSelector(cookiesAcceptID, { timeout: 5000 });
 			log("4.a cookies accept found", timer);
 
-			await cookiesAccept!.evaluate(node => (node as HTMLButtonElement).click());
+			await cookiesAccept!.evaluate((node) => (node as HTMLButtonElement).click());
 			await webPage.waitForSelector(cookiesAcceptID, { hidden: true, timeout: 5000 });
 			log("4.b cookies accept clicked", timer);
 		} catch (error) {
@@ -132,7 +139,7 @@ export async function scrape(
 						error: new ScrapeError(
 							"Wykryto captchę, nie można się zalogować",
 							ErrorType.UnhandledError
-						)
+						),
 					};
 				} else {
 					// If not headless, wait for user to solve captcha
@@ -153,14 +160,14 @@ export async function scrape(
 		let popupCloseElement: ElementHandle<Element> | null = null;
 		try {
 			popupCloseElement = await webPage.waitForSelector("[data-testid='close-button']", {
-				timeout: 5000
+				timeout: 5000,
 			});
 			log("7.a popup found", timer);
 		} catch (error) {
 			log("7. didn't find popup to close", timer);
 		}
 		if (popupCloseElement) {
-			await popupCloseElement.evaluate(node => (node as HTMLButtonElement).click());
+			await popupCloseElement.evaluate((node) => (node as HTMLButtonElement).click());
 			log("7.b popup closed", timer);
 		}
 
@@ -170,8 +177,8 @@ export async function scrape(
 
 		// Wait for exercises to load
 		try {
-			await webPage.waitForResponse(response => response.url().includes("exercises"), {
-				timeout: 5000
+			await webPage.waitForResponse((response) => response.url().includes("exercises"), {
+				timeout: 5000,
 			});
 			log("9.a exercises response", timer);
 		} catch (error) {
@@ -183,7 +190,7 @@ export async function scrape(
 					error: new ScrapeError(
 						"Konto zostało tymczasowo zablokowane :(",
 						ErrorType.UnhandledError
-					)
+					),
 				};
 			}
 
@@ -192,10 +199,10 @@ export async function scrape(
 				error: new ScrapeError(
 					`Nie znaleziono zadań na stronie ${page}. Jeśli w książce na takiej stronie znajdują się zadania, możliwe jest, że nie są jeszcze rozwiązane w odrabiamy.pl`,
 					ErrorType.PageNotFoundError
-				)
+				),
 			};
 		}
-		await webPage.waitForResponse(response => response.url().includes("visits"));
+		await webPage.waitForResponse((response) => response.url().includes("visits"));
 		log("9.b visits response", timer);
 
 		// Parse exercise number (has to be here because of tests)
@@ -212,10 +219,10 @@ export async function scrape(
 		// Find exercise buttons
 		const exerciseSelector = `[id='qa-exercise-no-${exerciseParsed}'] > a`;
 		const exerciseBtns = await webPage.$$(exerciseSelector);
-		const individualExerciseBtns = await async.filter(exerciseBtns, async btn => {
+		const individualExerciseBtns = await async.filter(exerciseBtns, async (btn) => {
 			const paragraphs = await btn.$$("p");
-			const individualText = await async.filter(paragraphs, async p => {
-				const innerText = await p.evaluate(node => node.innerText);
+			const individualText = await async.filter(paragraphs, async (p) => {
+				const innerText = await p.evaluate((node) => node.innerText);
 				return innerText.includes("Indywidualne");
 			});
 
@@ -225,7 +232,7 @@ export async function scrape(
 		if (exerciseBtns.length === 0) {
 			const subexercises = await webPage.$$(`[id^='qa-exercise-no-${exerciseParsed}']`);
 			const ids = await async.map(subexercises, async (btn: ElementHandle<Element>) => {
-				const id = await btn.evaluate(node => node.id);
+				const id = await btn.evaluate((node) => node.id);
 				return id.split(exerciseParsed)[1];
 			});
 
@@ -237,7 +244,7 @@ export async function scrape(
 							ids.length > 1 ? "y" : ""
 						} ${ids.join(", ")} tego zadania`,
 						ErrorType.ExerciseNotFoundButSubexercisesFoundError
-					)
+					),
 				};
 			} else {
 				await browser.close();
@@ -245,7 +252,7 @@ export async function scrape(
 					error: new ScrapeError(
 						`Nie znaleziono zadania ${exercise} na stronie ${page}`,
 						ErrorType.ExerciseNotFoundError
-					)
+					),
 				};
 			}
 		}
@@ -262,29 +269,29 @@ export async function scrape(
 					error: new ScrapeError(
 						`Zadanie ${exercise} na stronie ${page} jest do rozwiązania indywidualnego. Nie ma rozwiązania w odrabiamy.pl`,
 						ErrorType.IndividualExerciseError
-					)
+					),
 				};
 			} else if (individualExerciseBtns.includes(exerciseBtns[i])) {
 				continue;
 			}
 
 			// Only this click works
-			await exerciseBtns[i].evaluate(node => (node as HTMLAnchorElement).click());
+			await exerciseBtns[i].evaluate((node) => (node as HTMLAnchorElement).click());
 			log("10. clicked exercise button " + i, timer);
 
 			// Wait for the solution to load
 			if (i > 0) {
-				await webPage.waitForResponse(response => response.url().includes("exercises"));
+				await webPage.waitForResponse((response) => response.url().includes("exercises"));
 				log("11.a exercises response", timer);
 			}
-			await webPage.waitForResponse(response => response.url().includes("visits"));
+			await webPage.waitForResponse((response) => response.url().includes("visits"));
 			log("11.b solution loaded", timer);
 
 			// Wait for images to load
 			const solutionElement = await webPage.$("#qa-exercise");
-			await solutionElement!.$$eval("img", async imgs => {
+			await solutionElement!.$$eval("img", async (imgs) => {
 				await Promise.all(
-					imgs.map(img => {
+					imgs.map((img) => {
 						if (img.complete) return;
 						return new Promise((resolve, reject) => {
 							img.addEventListener("load", resolve);
@@ -317,7 +324,7 @@ export async function scrape(
 			error: new ScrapeError(
 				"Błąd (zad.ts):\n\n" + err.message + "\n\n" + aux,
 				ErrorType.UnhandledError
-			)
+			),
 		};
 	}
 }

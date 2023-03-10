@@ -1,27 +1,16 @@
 {
 	"name": "odrabiamy-bot",
-	"version": "1.8.2",
+	"version": "1.9.0",
 	"description": "Discord bot for retrieving data from https://odrabiamy.pl/",
 	"main": "src/main.ts",
+	"type": "module",
 	"scripts": {
-		"start": "if [ \"$NODE_ENV\" = \"server\" ]; then npm run commands; ts-node --transpile-only src/main.ts; fi",
-		"dev": "cross-env NODE_ENV=local nodemon --files src/main.ts",
-		"commands": "ts-node --transpile-only src/commands-deploy.ts",
-		"commands-dev": "ts-node --transpile-only src/commands-deploy-dev.ts",
-		"logout": "rm src/config/cookies.json",
-		"global": "npm i -g npm-check-updates git-open"
+		"start": "if [ \"$NODE_ENV\" = \"server\" ]; then npm run commands; tsx src/main.ts; fi",
+		"dev": "cross-env NODE_ENV=local tsx watch --clear-screen=false --ignore src/config src/main.ts",
+		"commands": "tsx src/commands-deploy.ts",
+		"commands-dev": "tsx src/commands-deploy-dev.ts",
+		"logout": "rm src/config/cookies.json"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/matijas-05/odrabiamy-bot.git"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/matijas-05/odrabiamy-bot/issues"
-	},
-	"homepage": "https://github.com/matijas-05/odrabiamy-bot#readme",
 	"devDependencies": {
 		"@types/async": "^3.2.15",
 		"@types/cli-color": "^2.0.2",
@@ -30,12 +19,12 @@
 		"@types/puppeteer": "^5.4.7",
 		"@typescript-eslint/eslint-plugin": "^5.43.0",
 		"@typescript-eslint/parser": "^5.43.0",
-		"cross-env": "^7.0.3",
-		"nodemon": "^2.0.20"
+		"cross-env": "^7.0.3"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.3.0",
 		"@discordjs/rest": "^1.3.0",
+		"@tsconfig/node18-strictest-esm": "^1.0.1",
 		"async": "^3.2.4",
 		"cli-color": "^2.0.3",
 		"discord-api-types": "^0.37.18",
@@ -47,6 +36,6 @@
 		"puppeteer-extra": "^3.3.4",
 		"puppeteer-extra-plugin-stealth": "^2.11.1",
 		"time-stamp": "^2.2.0",
-		"ts-node": "^10.9.1"
+		"tsx": "^3.12.3"
 	}
 }

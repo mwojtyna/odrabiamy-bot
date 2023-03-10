@@ -1,6 +1,6 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import type { CacheType, CommandInteraction } from "discord.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Command } from "../main";
+import type { Command } from "../main";
 import { scrape } from "../scrape";
 import fs from "fs-extra";
 import path from "path";
@@ -8,7 +8,7 @@ import path from "path";
 import { ErrorType } from "../scrape";
 import tests from "../test-list";
 
-export = {
+export const command = {
 	data: new SlashCommandBuilder()
 		.setName("test")
 		.setDescription("Testuje bota")

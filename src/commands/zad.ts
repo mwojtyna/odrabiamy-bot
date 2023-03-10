@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CacheType, CommandInteraction } from "discord.js";
+import type { CacheType, CommandInteraction } from "discord.js";
 import fs from "fs-extra";
 import path from "path";
 
-import { Command } from "../main";
+import type { Command } from "../main";
 import { scrape } from "../scrape";
 import config from "../config/config.json";
 
@@ -13,18 +13,18 @@ interface BookJSON {
 }
 let isBeingUsed = false;
 
-export = {
+export const command = {
 	data: new SlashCommandBuilder()
 		.setName("zad")
 		.setDescription("Odpowiada ze screenem zadania")
-		.addIntegerOption(option =>
+		.addIntegerOption((option) =>
 			option
 				.setName("strona")
 				.setDescription("Wpisz numer strony")
 				.setRequired(true)
 				.setMinValue(1)
 		)
-		.addStringOption(option =>
+		.addStringOption((option) =>
 			option.setName("zadanie").setDescription("Wpisz numer zadania").setRequired(true)
 		),
 
@@ -79,5 +79,5 @@ export = {
 			fs.emptyDirSync(path.join(process.cwd(), "screenshots"));
 			isBeingUsed = false;
 		}
-	}
+	},
 } as Command;
