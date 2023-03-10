@@ -2,7 +2,7 @@
  * @type {import("puppeteer").Configuration}
  */
 module.exports = {
-	browserRevision: "1083080",
+	browserRevision: "1095492",
 	cacheDirectory: __dirname + "/node_modules/puppeteer/.local-chromium",
 	// Downloading experimental arm chromium for m1 macs is not working atm
 	experiments: {

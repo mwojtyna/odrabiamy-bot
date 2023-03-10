@@ -3,7 +3,7 @@
 FROM endeveit/docker-jq AS deps
 
 COPY package.json /tmp
-RUN jq '{ scripts, dependencies, devDependencies }' < /tmp/package.json > /tmp/deps.json
+RUN jq '{ scripts, main, type, dependencies, devDependencies }' < /tmp/package.json > /tmp/deps.json
 
 # Actual image
 FROM node:18.12-bullseye-slim
